@@ -11,10 +11,12 @@ type City = {
   };
 };
 
-const indexedCities: (City & { searchName: string })[] = (cities as City[]).map((c) => ({
-  ...c,
-  searchName: c.name.toLowerCase(),
-}));
+const indexedCities: (City & { searchName: string })[] = (cities as City[]).map(
+  (c) => ({
+    ...c,
+    searchName: c.name.toLowerCase(),
+  }),
+);
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

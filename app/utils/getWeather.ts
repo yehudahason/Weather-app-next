@@ -24,4 +24,7 @@ export function getCountryName(code: string) {
   return regionNames.of(code);
 }
 
-console.log(getCountryName("IL")); // Israel
+export async function searchCities(query: string) {
+  const res = await fetch(`/api/cities?q=${query}`);
+  return res.json();
+}
