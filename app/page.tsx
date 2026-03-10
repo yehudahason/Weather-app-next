@@ -1,8 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Units from "./components/Units";
-import { getWeather } from "./utils/getWeather";
-import { getCity } from "./utils/getWeather";
+import { searchCities } from "./utils/getWeather";
 
 const Home = () => {
   const days = [
@@ -30,6 +29,7 @@ const Home = () => {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
+    console.log(searchCities("haifa"));
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
