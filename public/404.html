@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting…</title>
+    <script>
+      // SPA fallback for GitHub Pages
+      // Redirect /quiz-app/anything to /quiz-app/?p=/anything
+      var l = window.location;
+      var repo = "/Weather-app"; //GitHub repo URL
+      var path = l.pathname.startsWith(repo)
+        ? l.pathname.slice(repo.length)
+        : l.pathname;
+
+      l.replace(
+        repo +
+          "/?p=" +
+          encodeURIComponent(path) +
+          "&q=" +
+          encodeURIComponent(l.search) +
+          "&h=" +
+          encodeURIComponent(l.hash),
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
