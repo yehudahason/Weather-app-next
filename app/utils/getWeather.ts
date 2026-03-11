@@ -1,13 +1,17 @@
 const GEO = process.env.GEO_KEY;
 const url =
   "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
-const apikey = process.env.API_KEY;
 
-export async function getWeather(city: string) {
-  const res = await fetch(url + `${city}?key=${apikey}`);
-  // console.log(res);
-  const data = await res.json();
-  console.log(data);
+export async function getWeather(lat: number, lon: number) {
+  const apiKey = process.env.API_KEY;
+
+  const res = await fetch(`${url}${lat},${lon}?key=${apiKey}`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch weather");
+  }
+
+  return res.json();
 }
 
 export async function getCity(city: string) {
@@ -16,7 +20,7 @@ export async function getCity(city: string) {
   );
   const data = await res.json();
   console.log(data);
-  getWeather(city);
+  // getWeather(city);
 }
 
 export function getCountryName(code: string) {
@@ -25,6 +29,11 @@ export function getCountryName(code: string) {
 }
 
 export async function searchCities(query: string) {
-  const res = await fetch(`/api/cities?q=${query}`);
-  return res.json();
+  try {
+    const res = await fetch(`/api/cities?q=${query}`);
+    return res.json();
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 }

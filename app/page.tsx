@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Units from "./components/Units";
-import { searchCities } from "./utils/getWeather";
+import { getWeather, searchCities } from "./utils/getWeather";
 
 const Home = () => {
   const days = [
@@ -29,7 +29,6 @@ const Home = () => {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    console.log(searchCities("haifa"));
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -56,6 +55,15 @@ const Home = () => {
               className="search-input"
               type="text"
               placeholder="Search for a place..."
+              onChange={async (e) => {
+                let city = await searchCities(e.target.value);
+                console.log(city);
+                let lat = city[0].coord.lat;
+                let lon = city[0].coord.lon;
+                fetch(`/api/weather?lat=${lat}&lon=${lon}`)
+                  .then((res) => res.json())
+                  .then((data) => console.log(data));
+              }}
             />
             <button className="search-button">Search</button>
           </div>
