@@ -16,7 +16,10 @@ const Home = () => {
 
   const [selectedDay, setSelectedDay] = useState<string>("Tuesday");
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const dropUnitRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -25,6 +28,12 @@ const Home = () => {
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+      }
+      if (
+        dropUnitRef.current &&
+        !dropUnitRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
       }
     }
 
@@ -41,7 +50,7 @@ const Home = () => {
         <div className="header-container">
           <img className="logo" src={`/assets/images/logo.svg`} />
           {/* <button className="units-button">Units ▼</button> */}
-          <Units />
+          <Units open={open} setOpen={setOpen} ref={dropUnitRef} />
         </div>
       </header>
 
@@ -60,7 +69,7 @@ const Home = () => {
                 console.log(city);
                 let lat = city[0].coord.lat;
                 let lon = city[0].coord.lon;
-                fetch(`/api/weather?lat=${lat}&lon=${lon}`)
+                fetch(`/api/city?city=haifa`)
                   .then((res) => res.json())
                   .then((data) => console.log(data));
               }}
@@ -175,7 +184,6 @@ const Home = () => {
                   ["8 PM", "🌫 18°"],
                   ["9 PM", "🌧 17°"],
                   ["10 PM", "☁ 17°"],
-                  ["3 PM", "☁ 20°"],
                   ["11 PM", "⛅ 20°"],
                   ["12 PM", "☀ 20°"],
                   ["13 PM", "☁ 19°"],

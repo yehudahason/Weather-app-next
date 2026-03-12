@@ -81,14 +81,16 @@ body {
 
 .search-box {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  flex-direction: column;
   justify-content: center;
-  flex-wrap: wrap;
+  align-items: center;
   min-width: 0;
 }
 
 .search-input {
-  width: min(420px, 100%);
+  width: 100%;
+  max-width: 420px;
   padding: 14px;
   border-radius: 10px;
   border: none;
@@ -103,6 +105,8 @@ body {
   background: #4c5df4;
   color: white;
   cursor: pointer;
+  width: 100%;
+  max-width: 420px;
 }
 
 /* ===== GRID LAYOUT ===== */
@@ -476,6 +480,16 @@ body {
   height: 1px;
   background: rgba(255, 255, 255, 0.1);
   margin: 16px 0;
+}
+
+@media (min-width: 565px) {
+  .search-box {
+    flex-direction: row;
+  }
+
+  .search-button {
+    width: 114px;
+  }
 }
 /* ========================= */
 /* TABLET ≥768px */
