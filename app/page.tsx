@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import Units from "./components/Units";
 import { getWeather, searchCities } from "./utils/getWeather";
-
+import { City } from "./types/types";
 const Home = () => {
   const days = [
     "Monday",
@@ -20,6 +20,20 @@ const Home = () => {
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
+  const [query, setQuery] = useState<string>("");
+  const [cities, setCities] = useState<City[]>([]);
+
+  const handleSearch = async (value: string) => {
+    setQuery(value);
+
+    if (!value) {
+      setCities([]);
+      return;
+    }
+
+    const results = await searchCities(value);
+    setCities(results);
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -36,7 +50,10 @@ const Home = () => {
         setOpen(false);
       }
     }
-
+    async function test() {
+      console.log(await searchCities("haifa"));
+    }
+    test();
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
@@ -59,7 +76,7 @@ const Home = () => {
         <section className="search-section">
           <h1 className="main-title">How’s the sky looking today?</h1>
 
-          <div className="search-box">
+          {/* <div className="search-box">
             <input
               className="search-input"
               type="text"
@@ -74,6 +91,35 @@ const Home = () => {
                   .then((data) => console.log(data));
               }}
             />
+            <button className="search-button">Search</button>
+          </div> */}
+
+          <div className="search-box">
+            <div className="input-wrapper">
+              <input
+                className="search-input"
+                type="text"
+                placeholder="Search for a place..."
+                value={query}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+              {cities.length > 0 && (
+                <div className="dropdown-city">
+                  {cities.map((city, index) => (
+                    <div
+                      key={index}
+                      className="dropdown-item-city"
+                      onClick={() => {
+                        setQuery(city.name);
+                        setCities([]);
+                      }}
+                    >
+                      {city.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <button className="search-button">Search</button>
           </div>
         </section>
