@@ -1,8 +1,9 @@
 "use client";
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
-import { getWeather, searchCities } from "./utils/getWeather";
+import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
 import { City } from "./types/types";
+
 const Home = () => {
   const days = [
     "Monday",
@@ -17,10 +18,9 @@ const Home = () => {
   const [selectedDay, setSelectedDay] = useState<string>("Tuesday");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
-  const [query, setQuery] = useState<string>("haifa");
+  const [query, setQuery] = useState<string>("");
   const [cities, setCities] = useState<City[]>([]);
 
   const handleSearch = async (value: string) => {
@@ -34,11 +34,23 @@ const Home = () => {
     setCities(results);
   };
 
-  const setDisplay = async (city: string) => {
-    let res = await fetch(`/api/city?city=${city}`)
-      .then((res) => res.json())
-      .then((data) => console.log(data));
-    // console.log(res);
+  const setData = async (city: string) => {
+    try {
+      let resCity = await searchCities(city);
+      let resCountry = await getCountryName(resCity[0].country);
+      console.log("city", resCity);
+      console.log("country", resCountry);
+      let lon = resCity[0].coord.lon;
+      let lat = resCity[0].coord.lat;
+      let res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      let data = await res.json();
+      let { days }: any = data;
+      let resDays = days.slice(0, 7);
+      console.log(resDays);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
   useMemo(async () => {
     try {
@@ -61,10 +73,7 @@ const Home = () => {
         setOpen(false);
       }
     }
-    async function test() {
-      console.log(await searchCities("haifa"));
-    }
-    test();
+
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
@@ -123,7 +132,7 @@ const Home = () => {
                       onClick={() => {
                         setQuery(city.name);
                         setCities([]);
-                        setDisplay(city.name);
+                        setData(city.name);
                       }}
                     >
                       {city.name}
@@ -132,7 +141,7 @@ const Home = () => {
                 </div>
               )}
             </div>
-            <button className="search-button" onClick={() => setDisplay(query)}>
+            <button className="search-button" onClick={() => setData(query)}>
               Search
             </button>
           </div>
