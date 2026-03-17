@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { getWeather, searchCities } from "./utils/getWeather";
 import { City } from "./types/types";
@@ -20,12 +20,11 @@ const Home = () => {
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
 
   const handleSearch = async (value: string) => {
     setQuery(value);
-
     if (!value) {
       setCities([]);
       return;
@@ -35,6 +34,18 @@ const Home = () => {
     setCities(results);
   };
 
+  const setDisplay = async (city: string) => {
+    let res = await fetch(`/api/city?city=${city}`)
+      .then((res) => res.json())
+      .then((data) => console.log(data));
+    // console.log(res);
+  };
+  useMemo(async () => {
+    try {
+    } catch (err) {
+      console.log(err);
+    }
+  }, [query]);
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -112,6 +123,7 @@ const Home = () => {
                       onClick={() => {
                         setQuery(city.name);
                         setCities([]);
+                        setDisplay(city.name);
                       }}
                     >
                       {city.name}
@@ -120,7 +132,9 @@ const Home = () => {
                 </div>
               )}
             </div>
-            <button className="search-button">Search</button>
+            <button className="search-button" onClick={() => setDisplay(query)}>
+              Search
+            </button>
           </div>
         </section>
 
