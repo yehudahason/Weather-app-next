@@ -1,14 +1,15 @@
 import { useState, forwardRef } from "react";
 import { Settings } from "lucide-react";
-type UnitSystem = "metric" | "imperial";
 
 interface UnitsProps {
+  system: "metric" | "imperial";
+  setSystem: (system: "metric" | "imperial") => void;
   open: boolean;
   setOpen: (value: boolean) => void;
 }
 
 const Units = forwardRef<HTMLDivElement, UnitsProps>(
-  ({ open, setOpen }, ref) => {
+  ({ open, setOpen, system, setSystem }, ref) => {
     const SYSTEMS = {
       metric: {
         label: "Switch to Imperial",
@@ -29,7 +30,6 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
       wind: ["km/h", "mph"],
       precipitation: ["Millimeters (mm)", "Inches (in)"],
     };
-    const [system, setSystem] = useState<UnitSystem>("metric");
 
     const toggle = () => setSystem(system === "metric" ? "imperial" : "metric");
 

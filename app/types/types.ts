@@ -10,4 +10,5 @@ export type City = {
   };
 };
 
-export type WeatherEntry = [day: string, icon: string, temp: string];
+export type WeatherEntry = [day: string, icon: string, temp: string] | [];
+export type UnitSystem = "metric" | "imperial";

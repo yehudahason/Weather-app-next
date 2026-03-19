@@ -3,9 +3,10 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
 import { getDays, weekDays, weekForecast } from "./utils/getDays";
-import { City, WeatherEntry } from "./types/types";
+import { City, WeatherEntry, UnitSystem } from "./types/types";
 
 const Home = () => {
+  const [system, setSystem] = useState<UnitSystem>("metric");
   const [selectedDay, setSelectedDay] = useState<string>("Tuesday");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -49,7 +50,7 @@ const Home = () => {
       console.log(icons, minTemps, maxTemps);
       let weekF = weekForecast(icons, minTemps, maxTemps);
       console.log(weekF);
-      //@ts-ignore
+
       setWeekD(weekF);
       let verbDays = getDays();
       console.log(verbDays);
@@ -93,7 +94,13 @@ const Home = () => {
         <div className="header-container">
           <img className="logo" src={`/assets/images/logo.svg`} />
           {/* <button className="units-button">Units ▼</button> */}
-          <Units open={open} setOpen={setOpen} ref={dropUnitRef} />
+          <Units
+            open={open}
+            setOpen={setOpen}
+            ref={dropUnitRef}
+            system={system}
+            setSystem={setSystem}
+          />
         </div>
       </header>
 

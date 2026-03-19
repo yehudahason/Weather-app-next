@@ -1,4 +1,5 @@
 import { getIcon } from "./weatherIcons";
+import { WeatherEntry } from "../types/types.js";
 
 export const weekDays = [
   "Sunday",
@@ -35,15 +36,15 @@ export function weekForecast(
   icons: string[],
   minTemps: number[],
   maxTemps: number[],
-) {
+): WeatherEntry[] {
   const days = getDays();
-  const week = [];
+  const week: WeatherEntry[] = [];
   for (let i = 0; i < 7; i++) {
-    let day: string[] = [];
-    let icon = getIcon(icons[i]);
-    day.push(shortWeekDays[days[i]]);
-    day.push(icon);
-    day.push(`${maxTemps[i]}° / ${minTemps[i]}°`);
+    let day: WeatherEntry = [
+      shortWeekDays[days[i]],
+      getIcon(icons[i]),
+      `${maxTemps[i]}°/${minTemps[i]}°`,
+    ];
     week.push(day);
   }
   return week;
