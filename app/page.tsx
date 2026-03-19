@@ -2,19 +2,10 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
-import { City } from "./types/types";
+import { getDays, weekDays, weekForecast } from "./utils/getDays";
+import { City, WeatherEntry } from "./types/types";
 
 const Home = () => {
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-
   const [selectedDay, setSelectedDay] = useState<string>("Tuesday");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -22,6 +13,7 @@ const Home = () => {
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState<string>("");
   const [cities, setCities] = useState<City[]>([]);
+  const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
 
   const handleSearch = async (value: string) => {
     setQuery(value);
@@ -46,7 +38,21 @@ const Home = () => {
       let data = await res.json();
       let { days }: any = data;
       let resDays = days.slice(0, 7);
-      console.log(resDays);
+      let icons: string[] = [];
+      let minTemps: number[] = [];
+      let maxTemps: number[] = [];
+      resDays.forEach((e: any) => {
+        icons.push(e.conditions);
+        maxTemps.push(e.tempmax);
+        minTemps.push(e.tempmin);
+      });
+      console.log(icons, minTemps, maxTemps);
+      let weekF = weekForecast(icons, minTemps, maxTemps);
+      console.log(weekF);
+      //@ts-ignore
+      setWeekD(weekF);
+      let verbDays = getDays();
+      console.log(verbDays);
       console.log(data);
     } catch (err) {
       console.log(err);
@@ -95,24 +101,6 @@ const Home = () => {
         {/* Search Section */}
         <section className="search-section">
           <h1 className="main-title">How’s the sky looking today?</h1>
-
-          {/* <div className="search-box">
-            <input
-              className="search-input"
-              type="text"
-              placeholder="Search for a place..."
-              onChange={async (e) => {
-                let city = await searchCities(e.target.value);
-                console.log(city);
-                let lat = city[0].coord.lat;
-                let lon = city[0].coord.lon;
-                fetch(`/api/city?city=haifa`)
-                  .then((res) => res.json())
-                  .then((data) => console.log(data));
-              }}
-            />
-            <button className="search-button">Search</button>
-          </div> */}
 
           <div className="search-box">
             <div className="input-wrapper">
@@ -176,18 +164,15 @@ const Home = () => {
               <h3 className="section-title">Daily forecast</h3>
 
               <div className="daily-cards">
-                {[
-                  ["Tue", "🌧", "20° / 14°"],
-                  ["Wed", "🌧", "21° / 15°"],
-                  ["Thu", "☀", "24° / 14°"],
-                  ["Fri", "⛅", "25° / 13°"],
-                  ["Sat", "⛈", "21° / 15°"],
-                  ["Sun", "🌧", "25° / 16°"],
-                  ["Mon", "🌫", "24° / 15°"],
-                ].map(([day, icon, temp]) => (
+                {weekD.map(([day, icon, temp]) => (
                   <div key={day} className="daily-card">
                     <p className="day">{day}</p>
-                    <p className="weather-icon">{icon}</p>
+                    <p className="weather-icon">
+                      <img
+                        src={`/assets/images/icon-${icon}.webp`}
+                        alt="icon"
+                      />
+                    </p>
                     <p className="day-temp">{temp}</p>
                   </div>
                 ))}
@@ -219,7 +204,7 @@ const Home = () => {
 
                       {isOpen && (
                         <div className="dropdown-menu">
-                          {days.map((day) => (
+                          {weekDays.map((day) => (
                             <button
                               key={day}
                               className={`dropdown-item ${

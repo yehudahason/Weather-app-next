@@ -1,0 +1,50 @@
+import { getIcon } from "./weatherIcons";
+
+export const weekDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+export const shortWeekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+export function getDays(): number[] {
+  let days = [];
+  const today = new Date().getDay(); // 0–6 (Sun–Sat)
+  for (let i = 0; i < 7; i++) {
+    days.push((today + i) % 7);
+  }
+  return days;
+}
+
+[
+  ["Tue", "🌧", "20° / 14°"],
+  ["Wed", "🌧", "21° / 15°"],
+  ["Thu", "☀", "24° / 14°"],
+  ["Fri", "⛅", "25° / 13°"],
+  ["Sat", "⛈", "21° / 15°"],
+  ["Sun", "🌧", "25° / 16°"],
+  ["Mon", "🌫", "24° / 15°"],
+];
+
+export function weekForecast(
+  icons: string[],
+  minTemps: number[],
+  maxTemps: number[],
+) {
+  const days = getDays();
+  const week = [];
+  for (let i = 0; i < 7; i++) {
+    let day: string[] = [];
+    let icon = getIcon(icons[i]);
+    day.push(shortWeekDays[days[i]]);
+    day.push(icon);
+    day.push(`${maxTemps[i]}° / ${minTemps[i]}°`);
+    week.push(day);
+  }
+  return week;
+}

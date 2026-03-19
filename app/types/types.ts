@@ -9,3 +9,5 @@ export type City = {
     lat: number;
   };
 };
+
+export type WeatherEntry = [day: string, icon: string, temp: string];

@@ -1,4 +1,4 @@
-const weatherIconMap = {
+export const weatherIconMap = {
   sunny: ["clear", "clear-day", "sunny"],
   partlyCloudy: [
     "partially cloudy",
@@ -14,7 +14,7 @@ const weatherIconMap = {
   thunder: ["thunderstorm", "storm", "thundershowers"],
 };
 
-function getIcon(condition: string) {
+export function getIcon(condition: string) {
   const c = condition.toLowerCase();
 
   for (const [icon, values] of Object.entries(weatherIconMap)) {
