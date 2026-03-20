@@ -2,8 +2,9 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
-import { getDays, weekDays, weekForecast } from "./utils/getDays";
+import { getDays, weekDays, weekForecast } from "./utils/utilsFunc";
 import { City, WeatherEntry, UnitSystem } from "./types/types";
+import { fToCelius } from "./utils/utilsFunc";
 
 const Home = () => {
   const [system, setSystem] = useState<UnitSystem>("metric");
@@ -12,7 +13,8 @@ const Home = () => {
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
-  const [query, setQuery] = useState<string>("");
+  const dropCities = useRef<HTMLDivElement | null>(null);
+  const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
   const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
 
@@ -44,8 +46,13 @@ const Home = () => {
       let maxTemps: number[] = [];
       resDays.forEach((e: any) => {
         icons.push(e.conditions);
-        maxTemps.push(e.tempmax);
-        minTemps.push(e.tempmin);
+        if (system === "metric") {
+          maxTemps.push(fToCelius(e.tempmax));
+          minTemps.push(fToCelius(e.tempmin));
+        } else {
+          maxTemps.push(e.tempmax);
+          minTemps.push(e.tempmin);
+        }
       });
       console.log(icons, minTemps, maxTemps);
       let weekF = weekForecast(icons, minTemps, maxTemps);
@@ -79,14 +86,20 @@ const Home = () => {
       ) {
         setOpen(false);
       }
+      if (
+        dropCities.current &&
+        !dropCities.current.contains(event.target as Node)
+      ) {
+        setCities([]);
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-
+    setData(query);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [system]);
 
   return (
     <>
@@ -119,7 +132,7 @@ const Home = () => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
               {cities.length > 0 && (
-                <div className="dropdown-city">
+                <div className="dropdown-city" ref={dropCities}>
                   {cities.map((city, index) => (
                     <div
                       key={index}

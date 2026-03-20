@@ -49,3 +49,7 @@ export function weekForecast(
   }
   return week;
 }
+
+export function fToCelius(fahrenheit: number): number {
+  return +(((fahrenheit - 32) * 5) / 9).toFixed(1);
+}
