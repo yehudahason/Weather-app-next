@@ -17,7 +17,7 @@ const Home = () => {
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
   const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
-
+  const [forecast, setForecast] = useState<any>({});
   const handleSearch = async (value: string) => {
     setQuery(value);
     if (!value) {
@@ -39,6 +39,7 @@ const Home = () => {
       let lat = resCity[0].coord.lat;
       let res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
       let data = await res.json();
+      setForecast(data);
       let { days }: any = data;
       let resDays = days.slice(0, 7);
       let icons: string[] = [];
@@ -62,11 +63,13 @@ const Home = () => {
       let verbDays = getDays();
       console.log(verbDays);
       console.log(data);
+      let { hours } = days[0];
+      console.log(hours);
     } catch (err) {
       console.log(err);
     }
   };
-  useMemo(async () => {
+  useMemo(() => {
     try {
     } catch (err) {
       console.log(err);
@@ -95,6 +98,7 @@ const Home = () => {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
+
     setData(query);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
