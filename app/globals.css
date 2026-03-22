@@ -343,13 +343,24 @@ body {
 }
 
 .hour-time {
+  display: flex;
   opacity: 0.8;
 }
-
+.hour-item img {
+  height: 30px;
+}
+.left {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
 .hour-temp {
   font-weight: 600;
 }
-
+.hour-icon img {
+  height: 30px;
+}
 .dropdown-container {
   width: 108px;
   position: relative;

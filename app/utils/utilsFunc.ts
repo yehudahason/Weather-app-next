@@ -59,11 +59,11 @@ const hours = [
   "11 PM",
 ];
 
-export function hoursForecast(icons: string[], temps: string[]) {
+export function hoursForecast(icons: string[], temps: number[]) {
   const hoursArray: HourEntry[] = [];
   hours.forEach((t, i) => {
-    let hour: HourEntry = [icons[i], t, temps[i]];
-    hoursArray.push(hour)
+    let hour: HourEntry = [getIcon(icons[i]), t, temps[i]];
+    hoursArray.push(hour);
   });
   return hoursArray;
 }

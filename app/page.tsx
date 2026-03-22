@@ -2,8 +2,13 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
-import { getDays, weekDays, weekForecast } from "./utils/utilsFunc";
-import { City, WeatherEntry, UnitSystem } from "./types/types";
+import {
+  getDays,
+  weekDays,
+  weekForecast,
+  hoursForecast,
+} from "./utils/utilsFunc";
+import { City, WeatherEntry, UnitSystem, HourEntry } from "./types/types";
 import { fToCelius } from "./utils/utilsFunc";
 
 const Home = () => {
@@ -18,6 +23,7 @@ const Home = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
   const [forecast, setForecast] = useState<any>({});
+  const [hourForecast, setHourForecast] = useState<HourEntry[]>([]);
   const handleSearch = async (value: string) => {
     setQuery(value);
     if (!value) {
@@ -65,6 +71,19 @@ const Home = () => {
       console.log(data);
       let { hours } = days[0];
       console.log(hours);
+      let hicons: string[] = [];
+      let htemps: number[] = [];
+      hours.forEach((h: any) => {
+        hicons.push(h.conditions);
+        if (system === "metric") {
+          htemps.push(fToCelius(h.temp));
+        } else {
+          htemps.push(h.temp);
+        }
+      });
+      console.log(hicons);
+      console.log(htemps);
+      setHourForecast(hoursForecast(hicons, htemps));
     } catch (err) {
       console.log(err);
     }
@@ -250,34 +269,16 @@ const Home = () => {
               </div>
 
               <div className="hourly-list">
-                {[
-                  ["0 PM", "☁ 20°"],
-                  ["1 PM", "☁ 20°"],
-                  ["2 PM", "☁ 20°"],
-                  ["3 PM", "☁ 20°"],
-                  ["4 PM", "⛅ 20°"],
-                  ["5 PM", "☀ 20°"],
-                  ["6 PM", "☁ 19°"],
-                  ["7 PM", "🌧 18°"],
-                  ["8 PM", "🌫 18°"],
-                  ["9 PM", "🌧 17°"],
-                  ["10 PM", "☁ 17°"],
-                  ["11 PM", "⛅ 20°"],
-                  ["12 PM", "☀ 20°"],
-                  ["13 PM", "☁ 19°"],
-                  ["14 PM", "🌧 18°"],
-                  ["15 PM", "🌫 18°"],
-                  ["16 PM", "🌧 17°"],
-                  ["18 PM", "☁ 17°"],
-                  ["19 PM", "☁ 17°"],
-                  ["20 PM", "☁ 17°"],
-                  ["21 PM", "☁ 17°"],
-                  ["22 PM", "☁ 17°"],
-                  ["23 PM", "☁ 17°"],
-                ].map(([time, temp]) => (
+                {hourForecast.map(([icon, time, temp]) => (
                   <div key={time} className="hour-item">
-                    <p className="hour-time">{time}</p>
-                    <p className="hour-temp">{temp}</p>
+                    <div className="left">
+                      <img
+                        src={`/assets/images/icon-${icon}.webp`}
+                        alt="icon"
+                      />
+                      <span>{time}</span>
+                    </div>
+                    <p className="hour-temp">{temp}°</p>
                   </div>
                 ))}
               </div>
