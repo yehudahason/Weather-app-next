@@ -22,6 +22,15 @@ export function getDays(): number[] {
   return days;
 }
 
+export function getLiteralDays(): string[] {
+  let days = [];
+  const today = new Date().getDay(); // 0–6 (Sun–Sat)
+  for (let i = 0; i < 7; i++) {
+    days.push(weekDays[(today + i) % 7]);
+  }
+  return days;
+}
+
 [
   ["Tue", "🌧", "20° / 14°"],
   ["Wed", "🌧", "21° / 15°"],

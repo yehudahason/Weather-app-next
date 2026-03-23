@@ -4,16 +4,27 @@ import Units from "./components/Units";
 import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
 import {
   getDays,
-  weekDays,
   weekForecast,
   hoursForecast,
+  getLiteralDays,
 } from "./utils/utilsFunc";
 import { City, WeatherEntry, UnitSystem, HourEntry } from "./types/types";
 import { fToCelius } from "./utils/utilsFunc";
+export const week = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 const Home = () => {
   const [system, setSystem] = useState<UnitSystem>("metric");
-  const [selectedDay, setSelectedDay] = useState<string>("Tuesday");
+  const [selectedDay, setSelectedDay] = useState<string>(
+    week[new Date().getDay()],
+  );
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -22,6 +33,7 @@ const Home = () => {
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
   const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
+  const [weekDays, setWeekDays] = useState<string[]>([]);
   const [forecast, setForecast] = useState<any>({});
   const [hourForecast, setHourForecast] = useState<HourEntry[]>([]);
   const handleSearch = async (value: string) => {
@@ -119,6 +131,7 @@ const Home = () => {
     document.addEventListener("mousedown", handleClickOutside);
 
     setData(query);
+    setWeekDays(getLiteralDays());
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
