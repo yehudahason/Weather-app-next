@@ -1,11 +1,15 @@
 "use client";
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
-import { searchCities } from "./utils/getWeather";
-import { weekForecast, hoursForecast, getLiteralDays } from "./utils/utilsFunc";
-import { City, UnitSystem } from "./types/types";
+import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
+import {
+  getDays,
+  weekForecast,
+  hoursForecast,
+  getLiteralDays,
+} from "./utils/utilsFunc";
+import { City, WeatherEntry, UnitSystem, HourEntry } from "./types/types";
 import { fToCelius } from "./utils/utilsFunc";
-
 export const week = [
   "Sunday",
   "Monday",
@@ -23,16 +27,15 @@ const Home = () => {
   );
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
   const dropCities = useRef<HTMLDivElement | null>(null);
-
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
+  const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
   const [hourWeekD, setHourWeekD] = useState<string[]>([]);
   const [forecast, setForecast] = useState<any>({});
-
+  const [hourForecast, setHourForecast] = useState<HourEntry[]>([]);
   const handleSearch = async (value: string) => {
     setQuery(value);
     if (!value) {
@@ -44,72 +47,65 @@ const Home = () => {
     setCities(results);
   };
 
-  // 🌐 FETCH
-  const fetchWeatherData = async (city: string) => {
+  const setData = async (city: string) => {
     try {
-      const resCity = await searchCities(city);
-      const { lon, lat } = resCity[0].coord;
-
-      const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-      const data = await res.json();
-      console.log(data);
+      let resCity = await searchCities(city);
+      let resCountry = await getCountryName(resCity[0].country);
+      console.log("city", resCity);
+      console.log("country", resCountry);
+      let lon = resCity[0].coord.lon;
+      let lat = resCity[0].coord.lat;
+      let res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      let data = await res.json();
       setForecast(data);
+      let { days }: any = data;
+      let resDays = days.slice(0, 7);
+      let icons: string[] = [];
+      let minTemps: number[] = [];
+      let maxTemps: number[] = [];
+      resDays.forEach((e: any) => {
+        icons.push(e.conditions);
+        if (system === "metric") {
+          maxTemps.push(fToCelius(e.tempmax));
+          minTemps.push(fToCelius(e.tempmin));
+        } else {
+          maxTemps.push(e.tempmax);
+          minTemps.push(e.tempmin);
+        }
+      });
+      console.log(icons, minTemps, maxTemps);
+      let weekF = weekForecast(icons, minTemps, maxTemps);
+      console.log(weekF);
+
+      setWeekD(weekF);
+      let verbDays = getDays();
+      console.log(verbDays);
+      console.log(data);
+      let { hours } = days[0];
+      console.log(hours);
+      let hicons: string[] = [];
+      let htemps: number[] = [];
+      hours.forEach((h: any) => {
+        hicons.push(h.conditions);
+        if (system === "metric") {
+          htemps.push(fToCelius(h.temp));
+        } else {
+          htemps.push(h.temp);
+        }
+      });
+      console.log(hicons);
+      console.log(htemps);
+      setHourForecast(hoursForecast(hicons, htemps));
     } catch (err) {
       console.log(err);
     }
   };
-
-  // 📅 DAYS (DERIVED)
-  const weekD = useMemo(() => {
-    if (!forecast?.days) return [];
-
-    const resDays = forecast.days.slice(0, 7);
-
-    let icons: string[] = [];
-    let minTemps: number[] = [];
-    let maxTemps: number[] = [];
-
-    resDays.forEach((e: any) => {
-      icons.push(e.conditions);
-
-      if (system === "metric") {
-        maxTemps.push(fToCelius(e.tempmax));
-        minTemps.push(fToCelius(e.tempmin));
-      } else {
-        maxTemps.push(e.tempmax);
-        minTemps.push(e.tempmin);
-      }
-    });
-
-    return weekForecast(icons, minTemps, maxTemps);
-  }, [forecast, system]);
-
-  // ⏰ HOURS (DERIVED BASED ON SELECTED DAY)
-  const hourForecast = useMemo(() => {
-    if (!forecast?.days) return [];
-
-    const index = hourWeekD.indexOf(selectedDay);
-    const selected = forecast.days[index];
-
-    if (!selected) return [];
-
-    let hicons: string[] = [];
-    let htemps: number[] = [];
-
-    selected.hours.forEach((h: any) => {
-      hicons.push(h.conditions);
-
-      if (system === "metric") {
-        htemps.push(fToCelius(h.temp));
-      } else {
-        htemps.push(h.temp);
-      }
-    });
-
-    return hoursForecast(hicons, htemps);
-  }, [forecast, selectedDay, system]);
-
-  // 🚀 LOAD DATA
+  useMemo(() => {
+    try {
+    } catch (err) {
+      console.log(err);
+    }
+  }, [query]);
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -134,9 +130,8 @@ const Home = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    fetchWeatherData(query);
+    setData(query);
     setHourWeekD(getLiteralDays());
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -181,7 +176,7 @@ const Home = () => {
                       onClick={() => {
                         setQuery(city.name);
                         setCities([]);
-                        fetchWeatherData(query);
+                        setData(city.name);
                       }}
                     >
                       {city.name}
@@ -190,10 +185,7 @@ const Home = () => {
                 </div>
               )}
             </div>
-            <button
-              className="search-button"
-              onClick={() => fetchWeatherData(query)}
-            >
+            <button className="search-button" onClick={() => setData(query)}>
               Search
             </button>
           </div>

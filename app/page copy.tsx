@@ -1,11 +1,15 @@
 "use client";
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
-import { searchCities } from "./utils/getWeather";
-import { weekForecast, hoursForecast, getLiteralDays } from "./utils/utilsFunc";
-import { City, UnitSystem } from "./types/types";
+import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
+import {
+  getDays,
+  weekForecast,
+  hoursForecast,
+  getLiteralDays,
+} from "./utils/utilsFunc";
+import { City, WeatherEntry, UnitSystem, HourEntry } from "./types/types";
 import { fToCelius } from "./utils/utilsFunc";
-
 export const week = [
   "Sunday",
   "Monday",
@@ -23,16 +27,15 @@ const Home = () => {
   );
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
   const dropCities = useRef<HTMLDivElement | null>(null);
-
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
+  const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
   const [hourWeekD, setHourWeekD] = useState<string[]>([]);
   const [forecast, setForecast] = useState<any>({});
-
+  const [hourForecast, setHourForecast] = useState<HourEntry[]>([]);
   const handleSearch = async (value: string) => {
     setQuery(value);
     if (!value) {
@@ -43,8 +46,6 @@ const Home = () => {
     const results = await searchCities(value);
     setCities(results);
   };
-
-  // 🌐 FETCH
   const fetchWeatherData = async (city: string) => {
     try {
       const resCity = await searchCities(city);
@@ -52,18 +53,17 @@ const Home = () => {
 
       const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
       const data = await res.json();
-      console.log(data);
-      setForecast(data);
+
+      setForecast(data); // single source of truth
+      return data;
     } catch (err) {
       console.log(err);
     }
   };
 
-  // 📅 DAYS (DERIVED)
-  const weekD = useMemo(() => {
-    if (!forecast?.days) return [];
-
-    const resDays = forecast.days.slice(0, 7);
+  // ✅ 2. DAYS FORECAST
+  const buildDaysForecast = (days: any[]) => {
+    const resDays = days.slice(0, 7);
 
     let icons: string[] = [];
     let minTemps: number[] = [];
@@ -82,21 +82,14 @@ const Home = () => {
     });
 
     return weekForecast(icons, minTemps, maxTemps);
-  }, [forecast, system]);
+  };
 
-  // ⏰ HOURS (DERIVED BASED ON SELECTED DAY)
-  const hourForecast = useMemo(() => {
-    if (!forecast?.days) return [];
-
-    const index = hourWeekD.indexOf(selectedDay);
-    const selected = forecast.days[index];
-
-    if (!selected) return [];
-
+  // ✅ 3. HOURS FORECAST
+  const buildHoursForecast = (hours: any[]) => {
     let hicons: string[] = [];
     let htemps: number[] = [];
 
-    selected.hours.forEach((h: any) => {
+    hours.forEach((h: any) => {
       hicons.push(h.conditions);
 
       if (system === "metric") {
@@ -107,9 +100,30 @@ const Home = () => {
     });
 
     return hoursForecast(hicons, htemps);
-  }, [forecast, selectedDay, system]);
+  };
 
-  // 🚀 LOAD DATA
+  // ✅ CONTROLLER FUNCTION
+  const setData = async (city: string) => {
+    const data = await fetchWeatherData(city);
+    if (!data) return;
+
+    const { days } = data;
+
+    const weekF = buildDaysForecast(days);
+
+    const hourF = buildHoursForecast(days[0].hours);
+
+    setWeekD(weekF);
+    setHourForecast(hourF);
+  };
+
+  useMemo(() => {
+    try {
+    } catch (err) {
+      console.log(err);
+    }
+  }, [query]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -134,7 +148,7 @@ const Home = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    fetchWeatherData(query);
+    setData(query);
     setHourWeekD(getLiteralDays());
 
     return () => {
@@ -181,7 +195,7 @@ const Home = () => {
                       onClick={() => {
                         setQuery(city.name);
                         setCities([]);
-                        fetchWeatherData(query);
+                        setData(city.name);
                       }}
                     >
                       {city.name}
@@ -190,10 +204,7 @@ const Home = () => {
                 </div>
               )}
             </div>
-            <button
-              className="search-button"
-              onClick={() => fetchWeatherData(query)}
-            >
+            <button className="search-button" onClick={() => setData(query)}>
               Search
             </button>
           </div>

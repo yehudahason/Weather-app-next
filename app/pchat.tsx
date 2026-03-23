@@ -1,9 +1,14 @@
 "use client";
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
-import { searchCities } from "./utils/getWeather";
-import { weekForecast, hoursForecast, getLiteralDays } from "./utils/utilsFunc";
-import { City, UnitSystem } from "./types/types";
+import { getWeather, searchCities, getCountryName } from "./utils/getWeather";
+import {
+  getDays,
+  weekForecast,
+  hoursForecast,
+  getLiteralDays,
+} from "./utils/utilsFunc";
+import { City, WeatherEntry, UnitSystem, HourEntry } from "./types/types";
 import { fToCelius } from "./utils/utilsFunc";
 
 export const week = [
@@ -23,15 +28,15 @@ const Home = () => {
   );
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
   const dropCities = useRef<HTMLDivElement | null>(null);
-
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
+  const [weekD, setWeekD] = useState<WeatherEntry[]>([]);
   const [hourWeekD, setHourWeekD] = useState<string[]>([]);
   const [forecast, setForecast] = useState<any>({});
+  const [hourForecast, setHourForecast] = useState<HourEntry[]>([]);
 
   const handleSearch = async (value: string) => {
     setQuery(value);
@@ -39,12 +44,11 @@ const Home = () => {
       setCities([]);
       return;
     }
-
     const results = await searchCities(value);
     setCities(results);
   };
 
-  // 🌐 FETCH
+  // ✅ 1. FETCH FUNCTION (ONLY API + setForecast)
   const fetchWeatherData = async (city: string) => {
     try {
       const resCity = await searchCities(city);
@@ -52,18 +56,17 @@ const Home = () => {
 
       const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
       const data = await res.json();
-      console.log(data);
-      setForecast(data);
+
+      setForecast(data); // single source of truth
+      return data;
     } catch (err) {
       console.log(err);
     }
   };
 
-  // 📅 DAYS (DERIVED)
-  const weekD = useMemo(() => {
-    if (!forecast?.days) return [];
-
-    const resDays = forecast.days.slice(0, 7);
+  // ✅ 2. DAYS FORECAST
+  const buildDaysForecast = (days: any[]) => {
+    const resDays = days.slice(0, 7);
 
     let icons: string[] = [];
     let minTemps: number[] = [];
@@ -82,21 +85,14 @@ const Home = () => {
     });
 
     return weekForecast(icons, minTemps, maxTemps);
-  }, [forecast, system]);
+  };
 
-  // ⏰ HOURS (DERIVED BASED ON SELECTED DAY)
-  const hourForecast = useMemo(() => {
-    if (!forecast?.days) return [];
-
-    const index = hourWeekD.indexOf(selectedDay);
-    const selected = forecast.days[index];
-
-    if (!selected) return [];
-
+  // ✅ 3. HOURS FORECAST
+  const buildHoursForecast = (hours: any[]) => {
     let hicons: string[] = [];
     let htemps: number[] = [];
 
-    selected.hours.forEach((h: any) => {
+    hours.forEach((h: any) => {
       hicons.push(h.conditions);
 
       if (system === "metric") {
@@ -107,9 +103,29 @@ const Home = () => {
     });
 
     return hoursForecast(hicons, htemps);
-  }, [forecast, selectedDay, system]);
+  };
 
-  // 🚀 LOAD DATA
+  // ✅ CONTROLLER FUNCTION
+  const setData = async (city: string) => {
+    const data = await fetchWeatherData(city);
+    if (!data) return;
+
+    const { days } = data;
+
+    const weekF = buildDaysForecast(days);
+    const hourF = buildHoursForecast(days[0].hours);
+
+    setWeekD(weekF);
+    setHourForecast(hourF);
+  };
+
+  useMemo(() => {
+    try {
+    } catch (err) {
+      console.log(err);
+    }
+  }, [query]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -134,7 +150,7 @@ const Home = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    fetchWeatherData(query);
+    setData(query);
     setHourWeekD(getLiteralDays());
 
     return () => {
@@ -147,7 +163,6 @@ const Home = () => {
       <header className="header">
         <div className="header-container">
           <img className="logo" src={`/assets/images/logo.svg`} />
-          {/* <button className="units-button">Units ▼</button> */}
           <Units
             open={open}
             setOpen={setOpen}
@@ -159,7 +174,6 @@ const Home = () => {
       </header>
 
       <main className="main">
-        {/* Search Section */}
         <section className="search-section">
           <h1 className="main-title">How’s the sky looking today?</h1>
 
@@ -181,7 +195,7 @@ const Home = () => {
                       onClick={() => {
                         setQuery(city.name);
                         setCities([]);
-                        fetchWeatherData(query);
+                        setData(city.name);
                       }}
                     >
                       {city.name}
@@ -190,53 +204,21 @@ const Home = () => {
                 </div>
               )}
             </div>
-            <button
-              className="search-button"
-              onClick={() => fetchWeatherData(query)}
-            >
+            <button className="search-button" onClick={() => setData(query)}>
               Search
             </button>
           </div>
         </section>
 
         <div className="content-grid">
-          {/* LEFT COLUMN */}
           <div className="left-column">
-            <section className="current-weather">
-              <div className="weather-main">
-                <h2 className="city-name">Berlin, Germany</h2>
-                <p className="date">Tuesday, Aug 5, 2025</p>
-                <h1 className="temperature">20° ☀</h1>
-              </div>
-
-              <div className="weather-details">
-                {[
-                  ["Feels Like", "18°"],
-                  ["Humidity", "46%"],
-                  ["Wind", "14 km/h"],
-                  ["Precipitation", "0 mm"],
-                ].map(([title, value]) => (
-                  <div key={title} className="detail-card">
-                    <p className="detail-title">{title}</p>
-                    <h3 className="detail-value">{value}</h3>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             <section className="daily-forecast">
               <h3 className="section-title">Daily forecast</h3>
-
               <div className="daily-cards">
                 {weekD.map(([day, icon, temp]) => (
                   <div key={day} className="daily-card">
                     <p className="day">{day}</p>
-                    <p className="weather-icon">
-                      <img
-                        src={`/assets/images/icon-${icon}.webp`}
-                        alt="icon"
-                      />
-                    </p>
+                    <img src={`/assets/images/icon-${icon}.webp`} />
                     <p className="day-temp">{temp}</p>
                   </div>
                 ))}
@@ -244,65 +226,15 @@ const Home = () => {
             </section>
           </div>
 
-          {/* RIGHT COLUMN */}
           <section className="hourly-forecast">
-            <div className="hourly-scroll">
-              <div className="hourly-header">
-                <h3 className="section-title">
-                  <span>Hourly forecast</span>{" "}
-                  <span>
-                    {/* DROPDOWN */}
-                    <div className="dropdown-container" ref={dropdownRef}>
-                      <button
-                        className="dropdown-button"
-                        onClick={() => setIsOpen(!isOpen)}
-                      >
-                        {selectedDay}
-                        <span className={`arrow ${isOpen ? "rotate" : ""}`}>
-                          <img
-                            src={`/assets/images/icon-dropdown.svg`}
-                            alt=""
-                          />
-                        </span>
-                      </button>
-
-                      {isOpen && (
-                        <div className="dropdown-menu">
-                          {hourWeekD.map((day) => (
-                            <button
-                              key={day}
-                              className={`dropdown-item ${
-                                selectedDay === day ? "active" : ""
-                              }`}
-                              onClick={() => {
-                                setSelectedDay(day);
-                                setIsOpen(false);
-                              }}
-                            >
-                              {day}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </span>
-                </h3>
-              </div>
-
-              <div className="hourly-list">
-                {hourForecast.map(([icon, time, temp]) => (
-                  <div key={time} className="hour-item">
-                    <div className="left">
-                      <img
-                        src={`/assets/images/icon-${icon}.webp`}
-                        alt="icon"
-                      />
-                      <span>{time}</span>
-                    </div>
-                    <p className="hour-temp">{temp}°</p>
-                  </div>
-                ))}
-              </div>
+            <div className="hourly-list">
+              {hourForecast.map(([icon, time, temp]) => (
+                <div key={time} className="hour-item">
+                  <img src={`/assets/images/icon-${icon}.webp`} />
+                  <span>{time}</span>
+                  <p>{temp}°</p>
+                </div>
+              ))}
             </div>
           </section>
         </div>
