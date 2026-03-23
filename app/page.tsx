@@ -88,9 +88,14 @@ const Home = () => {
   const hourForecast = useMemo(() => {
     if (!forecast?.days) return [];
 
-    const index = hourWeekD.indexOf(selectedDay);
-    const selected = forecast.days[index];
-
+    // const index = hourWeekD.indexOf(selectedDay);
+    // const selected = forecast.days[index];
+    const selected = forecast.days.find((d: any) => {
+      const dayName = new Date(d.datetime).toLocaleDateString("en-US", {
+        weekday: "long",
+      });
+      return dayName === selectedDay;
+    });
     if (!selected) return [];
 
     let hicons: string[] = [];
@@ -105,8 +110,9 @@ const Home = () => {
         htemps.push(h.temp);
       }
     });
-
-    return hoursForecast(hicons, htemps);
+    let test = hoursForecast(hicons, htemps);
+    console.log(test);
+    return test;
   }, [forecast, selectedDay, system]);
 
   // 🚀 LOAD DATA
@@ -181,7 +187,7 @@ const Home = () => {
                       onClick={() => {
                         setQuery(city.name);
                         setCities([]);
-                        fetchWeatherData(query);
+                        fetchWeatherData(city.name);
                       }}
                     >
                       {city.name}

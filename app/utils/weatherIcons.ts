@@ -16,7 +16,9 @@ export const weatherIconMap = {
   thunder: ["thunderstorm", "storm", "thundershowers"],
 };
 
-export function getIcon(condition: string) {
+export function getIcon(condition?: string) {
+  if (!condition) return "sunny"; // or "sunny" fallback
+
   const c = condition.toLowerCase();
 
   for (const [icon, values] of Object.entries(weatherIconMap)) {
@@ -25,5 +27,5 @@ export function getIcon(condition: string) {
     }
   }
 
-  return "unknown";
+  return "sunny";
 }
