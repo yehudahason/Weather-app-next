@@ -201,6 +201,9 @@ body {
   background-repeat: no-repeat;
   padding: 40px;
   border-radius: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .city-name {
@@ -221,6 +224,7 @@ body {
   display: grid;
   gap: 32px;
 }
+
 /* ===== DETAILS ===== */
 .weather-details {
   display: grid;

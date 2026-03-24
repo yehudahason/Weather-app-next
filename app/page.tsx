@@ -3,8 +3,9 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { searchCities } from "./utils/getWeather";
 import { weekForecast, hoursForecast, getLiteralDays } from "./utils/utilsFunc";
-import { City, UnitSystem } from "./types/types";
+import { City, UnitSystem, TodayForecast } from "./types/types";
 import { fToCelius } from "./utils/utilsFunc";
+import { getIcon } from "./utils/weatherIcons";
 
 export const week = [
   "Sunday",
@@ -84,6 +85,34 @@ const Home = () => {
     return weekForecast(icons, minTemps, maxTemps);
   }, [forecast, system]);
 
+  // 📅 Today Forecast (DERIVED)
+  const today: TodayForecast = useMemo(() => {
+    const res: TodayForecast = {
+      temp: null,
+      feelslike: null,
+      wind: null,
+      humidity: null,
+      precip: null,
+      icon: null,
+    };
+    if (!forecast?.currentConditions) return res;
+
+    const todayF = forecast.currentConditions;
+    console.log(todayF);
+    if (system === "metric") {
+      res.temp = fToCelius(todayF.temp);
+    } else {
+      res.temp = todayF.temp;
+    }
+    res.humidity = todayF.humidity;
+    res.precip = todayF.precip;
+    res.wind = todayF.windspeed;
+    res.feelslike = todayF.feelslike;
+
+    res.icon = getIcon(todayF.conditions);
+    console.log(res);
+    return res;
+  }, [forecast, system]);
   // ⏰ HOURS (DERIVED BASED ON SELECTED DAY)
   const hourForecast = useMemo(() => {
     if (!forecast?.days) return [];
@@ -111,7 +140,6 @@ const Home = () => {
       }
     });
     let test = hoursForecast(hicons, htemps);
-    console.log(test);
     return test;
   }, [forecast, selectedDay, system]);
 
@@ -210,17 +238,26 @@ const Home = () => {
           <div className="left-column">
             <section className="current-weather">
               <div className="weather-main">
-                <h2 className="city-name">Berlin, Germany</h2>
-                <p className="date">Tuesday, Aug 5, 2025</p>
-                <h1 className="temperature">20° ☀</h1>
+                <div className="left-col">
+                  <h2 className="city-name">Berlin, Germany</h2>
+                  <p className="date">Tuesday, Aug 5, 2025</p>
+                </div>
+                <h1 className="temperature">
+                  <img
+                    src={`/assets/images/icon-${today.icon}.webp`}
+                    alt="icon"
+                    style={{ height: "60px" }}
+                  />
+                  {today.temp}°
+                </h1>
               </div>
 
               <div className="weather-details">
                 {[
-                  ["Feels Like", "18°"],
-                  ["Humidity", "46%"],
-                  ["Wind", "14 km/h"],
-                  ["Precipitation", "0 mm"],
+                  ["Feels Like", `${today.feelslike}`],
+                  ["Humidity", `${today.humidity}`],
+                  ["Wind", `${today.wind}`],
+                  ["Precipitation", `${today.precip}`],
                 ].map(([title, value]) => (
                   <div key={title} className="detail-card">
                     <p className="detail-title">{title}</p>
