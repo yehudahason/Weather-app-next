@@ -94,6 +94,6 @@ export function weekForecast(
   return week;
 }
 
-export function fToCelius(fahrenheit: number): number | string {
-  return +(((fahrenheit - 32) * 5) / 9).toFixed(1);
+export function fToCelius(fahrenheit: number | ""): number {
+  return Number((((+fahrenheit - 32) * 5) / 9).toFixed(1));
 }

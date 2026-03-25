@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { searchCities } from "./utils/getWeather";
 import { weekForecast, hoursForecast, getLiteralDays } from "./utils/utilsFunc";
-import { City, UnitSystem, TodayForecast } from "./types/types";
+import { City, UnitSystem, TodayForecast, ForecastDay } from "./types/types";
 import { fToCelius } from "./utils/utilsFunc";
 import { getIcon } from "./utils/weatherIcons";
 
@@ -63,8 +63,8 @@ const Home = () => {
   // 📅 DAYS (DERIVED)
   const weekD = useMemo(() => {
     let icons: string[] = [];
-    let minTemps: (number | string)[] = [];
-    let maxTemps: (number | string)[] = [];
+    let minTemps: (number | "")[] = [];
+    let maxTemps: (number | "")[] = [];
     for (let i = 0; i < 7; i++) {
       icons.push("blank");
       maxTemps.push("");
@@ -84,15 +84,15 @@ const Home = () => {
     for (let i = 0; i < 7; i++) {}
     resDays = forecast.days.slice(0, 7);
 
-    resDays.forEach((e: any) => {
+    resDays.forEach((e: ForecastDay) => {
       icons.push(e.conditions);
 
       if (system === "metric") {
-        maxTemps.push(fToCelius(e.tempmax));
-        minTemps.push(fToCelius(e.tempmin));
+        maxTemps.push(+fToCelius(Number(e.tempmax)));
+        minTemps.push(+fToCelius(Number(e.tempmin)));
       } else {
-        maxTemps.push(e.tempmax);
-        minTemps.push(e.tempmin);
+        maxTemps.push(+e.tempmax);
+        minTemps.push(+e.tempmin);
       }
     });
 

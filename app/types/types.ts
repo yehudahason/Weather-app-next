@@ -25,3 +25,9 @@ export type TodayForecast = {
   precip: number | "";
   icon: string | null;
 };
+
+export type ForecastDay = {
+  tempmax: number | "";
+  tempmin: number | "";
+  conditions: string;
+};
