@@ -7,6 +7,7 @@ export const weatherIconMap = {
     "mostly sunny",
     "scattered clouds",
   ],
+  blank: ["blank"],
 
   cloudy: ["overcast", "cloudy", "mostly cloudy"],
   fog: ["fog", "mist", "haze", "smoke"],

@@ -62,13 +62,27 @@ const Home = () => {
 
   // 📅 DAYS (DERIVED)
   const weekD = useMemo(() => {
-    if (!forecast?.days) return [];
-
-    const resDays = forecast.days.slice(0, 7);
-
     let icons: string[] = [];
-    let minTemps: number[] = [];
-    let maxTemps: number[] = [];
+    let minTemps: (number | string)[] = [];
+    let maxTemps: (number | string)[] = [];
+    for (let i = 0; i < 7; i++) {
+      icons.push("blank");
+      maxTemps.push("");
+      minTemps.push("");
+    }
+    if (!forecast?.days) {
+      let test = weekForecast(icons, minTemps, maxTemps);
+      console.log(test);
+      return test;
+    } else {
+      icons = [];
+      minTemps = [];
+      maxTemps = [];
+    }
+
+    let resDays = [];
+    for (let i = 0; i < 7; i++) {}
+    resDays = forecast.days.slice(0, 7);
 
     resDays.forEach((e: any) => {
       icons.push(e.conditions);
@@ -88,19 +102,19 @@ const Home = () => {
   // 📅 Today Forecast (DERIVED)
   const today: TodayForecast = useMemo(() => {
     const res: TodayForecast = {
-      temp: null,
-      feelslike: null,
-      wind: null,
-      humidity: null,
-      precip: null,
-      icon: null,
+      temp: "",
+      feelslike: "",
+      wind: "",
+      humidity: "",
+      precip: "",
+      icon: "blank",
     };
     if (!forecast?.currentConditions) return res;
 
     const todayF = forecast.currentConditions;
     console.log(todayF);
     if (system === "metric") {
-      res.temp = fToCelius(todayF.temp);
+      res.temp = +fToCelius(todayF.temp);
     } else {
       res.temp = todayF.temp;
     }
@@ -115,7 +129,18 @@ const Home = () => {
   }, [forecast, system]);
   // ⏰ HOURS (DERIVED BASED ON SELECTED DAY)
   const hourForecast = useMemo(() => {
-    if (!forecast?.days) return [];
+    let hicons: string[] = [];
+    let htemps: (number | string)[] = [];
+    for (let i = 0; i < 24; i++) {
+      hicons.push("blank");
+      htemps.push("");
+    }
+    if (!forecast?.days) {
+      return hoursForecast(hicons, htemps);
+    } else {
+      hicons = [];
+      htemps = [];
+    }
 
     // const index = hourWeekD.indexOf(selectedDay);
     // const selected = forecast.days[index];
@@ -127,14 +152,11 @@ const Home = () => {
     });
     if (!selected) return [];
 
-    let hicons: string[] = [];
-    let htemps: number[] = [];
-
     selected.hours.forEach((h: any) => {
       hicons.push(h.conditions);
 
       if (system === "metric") {
-        htemps.push(fToCelius(h.temp));
+        htemps.push(+fToCelius(h.temp));
       } else {
         htemps.push(h.temp);
       }
@@ -278,9 +300,10 @@ const Home = () => {
                       <img
                         src={`/assets/images/icon-${icon}.webp`}
                         alt="icon"
+                        style={{ height: "60px" }}
                       />
                     </p>
-                    <p className="day-temp">{temp}</p>
+                    <p className="day-temp">{temp} </p>
                   </div>
                 ))}
               </div>

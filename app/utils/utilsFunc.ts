@@ -68,7 +68,7 @@ const hours = [
   "11 PM",
 ];
 
-export function hoursForecast(icons: string[], temps: number[]) {
+export function hoursForecast(icons: string[], temps: (string | number)[]) {
   const hoursArray: HourEntry[] = [];
   hours.forEach((t, i) => {
     let hour: HourEntry = [getIcon(icons[i]), t, temps[i]];
@@ -78,8 +78,8 @@ export function hoursForecast(icons: string[], temps: number[]) {
 }
 export function weekForecast(
   icons: string[],
-  minTemps: number[],
-  maxTemps: number[],
+  minTemps: (number | string)[],
+  maxTemps: (number | string)[],
 ): WeatherEntry[] {
   const days = getDays();
   const week: WeatherEntry[] = [];
@@ -87,13 +87,13 @@ export function weekForecast(
     let day: WeatherEntry = [
       shortWeekDays[days[i]],
       getIcon(icons[i]),
-      `${maxTemps[i]}°/${minTemps[i]}°`,
+      `${maxTemps[i]}°     ${minTemps[i]}°`,
     ];
     week.push(day);
   }
   return week;
 }
 
-export function fToCelius(fahrenheit: number): number {
+export function fToCelius(fahrenheit: number): number | string {
   return +(((fahrenheit - 32) * 5) / 9).toFixed(1);
 }

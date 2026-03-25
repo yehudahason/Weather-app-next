@@ -11,15 +11,17 @@ export type City = {
 };
 
 export type WeatherEntry = [day: string, icon: string, temp: string] | [];
-export type HourEntry = [icon: string, time: string, temp: number] | [];
+export type HourEntry =
+  | [icon: string, time: string, temp: number | string]
+  | [];
 
 export type UnitSystem = "metric" | "imperial";
 
 export type TodayForecast = {
-  temp: number | null;
-  feelslike: number | null;
-  wind: number | null;
-  humidity: number | null;
-  precip: number | null;
+  temp: number | "";
+  feelslike: number | "";
+  wind: number | "";
+  humidity: number | "";
+  precip: number | "";
   icon: string | null;
 };

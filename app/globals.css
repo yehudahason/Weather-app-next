@@ -267,10 +267,11 @@ body {
 
 .daily-card {
   background: #1e244f;
-  padding: 18px;
+  padding: 16px;
   border-radius: 15px;
   flex: 0 0 90px; /* fixed width but shrink-safe */
   text-align: center;
+  min-width: 105px;
 }
 
 .day {
@@ -284,8 +285,11 @@ body {
 }
 
 .day-temp {
+  width: 100%;
   font-size: 14px;
+  white-space: pre;
   overflow-wrap: break-word;
+  transform: translateX(-3px);
 }
 
 /* ===== HOURLY ===== */
