@@ -31,8 +31,9 @@ const Home = () => {
 
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
-  const [hourWeekD, setHourWeekD] = useState<string[]>([]);
+
   const [forecast, setForecast] = useState<any>({});
+  const hourWeekD = useMemo(() => getLiteralDays(), [forecast]);
 
   const handleSearch = async (value: string) => {
     setQuery(value);
@@ -73,7 +74,6 @@ const Home = () => {
     }
     if (!forecast?.days) {
       let test = weekForecast(icons, minTemps, maxTemps);
-      console.log(test);
       return test;
     } else {
       icons = [];
@@ -191,13 +191,10 @@ const Home = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    fetchWeatherData(query);
-    setHourWeekD(getLiteralDays());
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [system]);
+  }, []);
 
   return (
     <>
