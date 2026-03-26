@@ -30,7 +30,6 @@ const Home = () => {
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
   const dropCities = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
@@ -234,50 +233,49 @@ const Home = () => {
               <input
                 ref={inputRef}
                 className="search-input"
+                type="text"
+                placeholder="Search for a place..."
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
-                autoComplete="off"
                 onKeyDown={(e) => {
                   if (!cities.length) return;
 
-                  if (e.code === "ArrowDown") {
+                  if (e.key === "ArrowDown") {
                     e.preventDefault();
                     setSelectedIndex((prev) =>
                       prev < cities.length - 1 ? prev + 1 : 0,
                     );
                   }
 
-                  if (e.code === "ArrowUp") {
+                  if (e.key === "ArrowUp") {
                     e.preventDefault();
                     setSelectedIndex((prev) =>
                       prev > 0 ? prev - 1 : cities.length - 1,
                     );
                   }
-
-                  if (e.code === "Enter" && selectedIndex >= 0) {
+                  console.log("KEY:", e.key);
+                  console.log("KEY:", JSON.stringify(e.key));
+                  if (e.key === "Enter" && selectedIndex >= 0) {
                     e.preventDefault();
-                    const city = cities[selectedIndex];
 
-                    setQuery(`${city.name}-${city.country}`);
+                    const city = cities[selectedIndex];
+                    setQuery(city.name);
                     setCities([]);
                     fetchWeatherData(city.name, city.coord.lon, city.coord.lat);
                   }
                 }}
+                autoComplete="off"
               />
-
               {cities.length > 0 && (
                 <div className="dropdown-city" ref={dropCities}>
                   {cities.map((city, index) => (
                     <div
                       key={index}
-                      ref={(el) => {
-                        itemRefs.current[index] = el;
-                      }}
                       className={`dropdown-item-city ${
                         selectedIndex === index ? "active" : ""
                       }`}
                       onClick={() => {
-                        setQuery(`${city.name}-${city.country}`);
+                        setQuery(city.name);
                         setCities([]);
                         fetchWeatherData(
                           city.name,
@@ -287,7 +285,7 @@ const Home = () => {
                         inputRef.current?.focus();
                       }}
                     >
-                      {city.name} - {city.country}
+                      {city.name}-{city.country}
                     </div>
                   ))}
                 </div>
