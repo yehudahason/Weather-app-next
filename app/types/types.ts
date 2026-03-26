@@ -31,3 +31,37 @@ export type ForecastDay = {
   tempmin: number | "";
   conditions: string;
 };
+
+export const week = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+export type ForecastHour = {
+  temp: number;
+  conditions: string;
+};
+
+export type CurrentConditions = {
+  temp: number;
+  feelslike: number;
+  humidity: number;
+  precip: number;
+  windspeed: number;
+  conditions: string;
+};
+
+export type ForecastDayWithHours = ForecastDay & {
+  datetime: string;
+  hours: ForecastHour[];
+};
+
+export type ForecastResponse = {
+  currentConditions?: CurrentConditions;
+  days?: ForecastDayWithHours[];
+};

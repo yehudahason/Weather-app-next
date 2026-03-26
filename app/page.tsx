@@ -10,41 +10,13 @@ import {
   fToCelius,
 } from "./utils/utilsFunc";
 import { getIcon } from "./utils/weatherIcons";
-import { City, UnitSystem, TodayForecast, ForecastDay } from "./types/types";
-
-export const week = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
-type ForecastHour = {
-  temp: number;
-  conditions: string;
-};
-
-type CurrentConditions = {
-  temp: number;
-  feelslike: number;
-  humidity: number;
-  precip: number;
-  windspeed: number;
-  conditions: string;
-};
-
-type ForecastDayWithHours = ForecastDay & {
-  datetime: string;
-  hours: ForecastHour[];
-};
-
-type ForecastResponse = {
-  currentConditions?: CurrentConditions;
-  days?: ForecastDayWithHours[];
-};
+import {
+  City,
+  UnitSystem,
+  TodayForecast,
+  week,
+  ForecastResponse,
+} from "./types/types";
 
 const Home = () => {
   const [system, setSystem] = useState<UnitSystem>("metric");
@@ -116,9 +88,11 @@ const Home = () => {
       }
 
       const data: ForecastResponse = await res.json();
+      console.log(data);
 
       setSelectedDay(week[new Date().getDay()]);
       setForecast(data);
+      setQuery(city);
     } catch (error) {
       console.error("Failed to fetch weather data:", error);
     }
