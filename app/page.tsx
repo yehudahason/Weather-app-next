@@ -47,11 +47,17 @@ const Home = () => {
   };
 
   // 🌐 FETCH
-  const fetchWeatherData = async (city: string) => {
+  const fetchWeatherData = async (
+    city: string,
+    lon: number | null = null,
+    lat: number | null = null,
+  ) => {
     try {
-      const resCity = await searchCities(city);
-      const { lon, lat } = resCity[0].coord;
-
+      if (lon == null && lat == null) {
+        const resCity = await searchCities(city);
+        lon = resCity[0].coord.lon;
+        lat = resCity[0].coord.lat;
+      }
       const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
       const data = await res.json();
       console.log(data);
@@ -235,10 +241,14 @@ const Home = () => {
                       onClick={() => {
                         setQuery(city.name);
                         setCities([]);
-                        fetchWeatherData(city.name);
+                        fetchWeatherData(
+                          city.name,
+                          city.coord.lon,
+                          city.coord.lat,
+                        );
                       }}
                     >
-                      {city.name}
+                      {city.name}-{city.country}
                     </div>
                   ))}
                 </div>
