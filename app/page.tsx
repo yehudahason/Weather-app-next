@@ -1,11 +1,16 @@
 "use client";
+
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./components/Units";
 import { searchCities } from "./utils/getWeather";
-import { weekForecast, hoursForecast, getLiteralDays } from "./utils/utilsFunc";
-import { City, UnitSystem, TodayForecast, ForecastDay } from "./types/types";
-import { fToCelius } from "./utils/utilsFunc";
+import {
+  weekForecast,
+  hoursForecast,
+  getLiteralDays,
+  fToCelius,
+} from "./utils/utilsFunc";
 import { getIcon } from "./utils/weatherIcons";
+import { City, UnitSystem, TodayForecast, ForecastDay } from "./types/types";
 
 export const week = [
   "Sunday",
@@ -17,6 +22,30 @@ export const week = [
   "Saturday",
 ];
 
+type ForecastHour = {
+  temp: number;
+  conditions: string;
+};
+
+type CurrentConditions = {
+  temp: number;
+  feelslike: number;
+  humidity: number;
+  precip: number;
+  windspeed: number;
+  conditions: string;
+};
+
+type ForecastDayWithHours = ForecastDay & {
+  datetime: string;
+  hours: ForecastHour[];
+};
+
+type ForecastResponse = {
+  currentConditions?: CurrentConditions;
+  days?: ForecastDayWithHours[];
+};
+
 const Home = () => {
   const [system, setSystem] = useState<UnitSystem>("metric");
   const [selectedDay, setSelectedDay] = useState<string>(
@@ -24,94 +53,109 @@ const Home = () => {
   );
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
   const dropCities = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [query, setQuery] = useState<string>("haifa");
   const [cities, setCities] = useState<City[]>([]);
+  const [forecast, setForecast] = useState<ForecastResponse>({});
 
-  const [forecast, setForecast] = useState<any>({});
   const hourWeekD = useMemo(() => getLiteralDays(), [forecast]);
 
   const handleSearch = async (value: string) => {
     setQuery(value);
-    if (!value) {
+
+    if (!value.trim()) {
       setCities([]);
+      setSelectedIndex(-1);
       return;
     }
 
-    const results = await searchCities(value);
-    setCities(results);
+    try {
+      const results = await searchCities(value);
+      setCities(results);
+      setSelectedIndex(results.length > 0 ? 0 : -1);
+    } catch (error) {
+      console.error("Failed to search cities:", error);
+      setCities([]);
+      setSelectedIndex(-1);
+    }
   };
 
-  // 🌐 FETCH
   const fetchWeatherData = async (
     city: string,
     lon: number | null = null,
     lat: number | null = null,
   ) => {
     try {
-      if (lon == null && lat == null) {
+      let resolvedLon = lon;
+      let resolvedLat = lat;
+
+      if (resolvedLon == null || resolvedLat == null) {
         const resCity = await searchCities(city);
-        lon = resCity[0].coord.lon;
-        lat = resCity[0].coord.lat;
+
+        if (!resCity.length) {
+          console.error("City not found");
+          return;
+        }
+
+        resolvedLon = resCity[0].coord.lon;
+        resolvedLat = resCity[0].coord.lat;
       }
-      const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-      const data = await res.json();
-      console.log(data);
+
+      const res = await fetch(
+        `/api/weather?lat=${resolvedLat}&lon=${resolvedLon}`,
+      );
+
+      if (!res.ok) {
+        throw new Error(`Weather request failed with status ${res.status}`);
+      }
+
+      const data: ForecastResponse = await res.json();
+
       setSelectedDay(week[new Date().getDay()]);
       setForecast(data);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.error("Failed to fetch weather data:", error);
     }
   };
 
-  // 📅 DAYS (DERIVED)
   const weekD = useMemo(() => {
-    let icons: string[] = [];
-    let minTemps: (number | "")[] = [];
-    let maxTemps: (number | "")[] = [];
-    for (let i = 0; i < 7; i++) {
-      icons.push("blank");
-      maxTemps.push("");
-      minTemps.push("");
-    }
-    if (!forecast?.days) {
-      let test = weekForecast(icons, minTemps, maxTemps);
-      return test;
-    } else {
-      icons = [];
-      minTemps = [];
-      maxTemps = [];
+    let icons: string[] = Array(7).fill("blank");
+    let minTemps: (number | "")[] = Array(7).fill("");
+    let maxTemps: (number | "")[] = Array(7).fill("");
+
+    if (!forecast.days) {
+      return weekForecast(icons, minTemps, maxTemps);
     }
 
-    let resDays = [];
-    for (let i = 0; i < 7; i++) {}
-    resDays = forecast.days.slice(0, 7);
+    icons = [];
+    minTemps = [];
+    maxTemps = [];
 
-    resDays.forEach((e: ForecastDay) => {
-      icons.push(e.conditions);
+    const resDays = forecast.days.slice(0, 7);
+
+    resDays.forEach((day) => {
+      icons.push(day.conditions);
 
       if (system === "metric") {
-        maxTemps.push(+fToCelius(Number(e.tempmax)));
-        minTemps.push(+fToCelius(Number(e.tempmin)));
+        maxTemps.push(+fToCelius(Number(day.tempmax)));
+        minTemps.push(+fToCelius(Number(day.tempmin)));
       } else {
-        maxTemps.push(+e.tempmax);
-        minTemps.push(+e.tempmin);
+        maxTemps.push(+day.tempmax);
+        minTemps.push(+day.tempmin);
       }
     });
 
     return weekForecast(icons, minTemps, maxTemps);
-  }, [forecast, system]);
+  }, [forecast.days, system]);
 
-  // 📅 Today Forecast (DERIVED)
   const today: TodayForecast = useMemo(() => {
-    const res: TodayForecast = {
+    const defaultToday: TodayForecast = {
       temp: "",
       feelslike: "",
       wind: "",
@@ -119,101 +163,88 @@ const Home = () => {
       precip: "",
       icon: "blank",
     };
-    if (!forecast?.currentConditions) return res;
 
-    const todayF = forecast.currentConditions;
-    console.log(todayF);
-    if (system === "metric") {
-      res.temp = +fToCelius(todayF.temp);
-    } else {
-      res.temp = todayF.temp;
+    if (!forecast.currentConditions) {
+      return defaultToday;
     }
-    res.humidity = todayF.humidity;
-    res.precip = todayF.precip;
-    res.wind = todayF.windspeed;
-    res.feelslike = todayF.feelslike;
 
-    res.icon = getIcon(todayF.conditions);
-    console.log(res);
-    return res;
-  }, [forecast, system]);
-  // ⏰ HOURS (DERIVED BASED ON SELECTED DAY)
+    const current = forecast.currentConditions;
+
+    return {
+      temp: system === "metric" ? +fToCelius(current.temp) : current.temp,
+      feelslike: current.feelslike,
+      wind: current.windspeed,
+      humidity: current.humidity,
+      precip: current.precip,
+      icon: getIcon(current.conditions),
+    };
+  }, [forecast.currentConditions, system]);
+
   const hourForecast = useMemo(() => {
-    let hicons: string[] = [];
-    let htemps: (number | string)[] = [];
-    for (let i = 0; i < 24; i++) {
-      hicons.push("blank");
-      htemps.push("");
-    }
-    if (!forecast?.days) {
+    let hicons: string[] = Array(24).fill("blank");
+    let htemps: (number | string)[] = Array(24).fill("");
+
+    if (!forecast.days) {
       return hoursForecast(hicons, htemps);
-    } else {
-      hicons = [];
-      htemps = [];
     }
 
-    // const index = hourWeekD.indexOf(selectedDay);
-    // const selected = forecast.days[index];
-    const selected = forecast.days.find((d: any) => {
-      const dayName = new Date(d.datetime).toLocaleDateString("en-US", {
+    hicons = [];
+    htemps = [];
+
+    const selected = forecast.days.find((day) => {
+      const dayName = new Date(day.datetime).toLocaleDateString("en-US", {
         weekday: "long",
       });
+
       return dayName === selectedDay;
     });
-    if (!selected) return [];
 
-    selected.hours.forEach((h: any) => {
-      hicons.push(h.conditions);
+    if (!selected) {
+      return [];
+    }
+
+    selected.hours.forEach((hour) => {
+      hicons.push(hour.conditions);
 
       if (system === "metric") {
-        htemps.push(+fToCelius(h.temp));
+        htemps.push(+fToCelius(hour.temp));
       } else {
-        htemps.push(h.temp);
+        htemps.push(hour.temp);
       }
     });
-    let test = hoursForecast(hicons, htemps);
-    return test;
-  }, [forecast, selectedDay, system]);
 
-  // 🚀 LOAD DATA
+    return hoursForecast(hicons, htemps);
+  }, [forecast.days, selectedDay, system]);
+
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsOpen(false);
       }
-      if (
-        dropUnitRef.current &&
-        !dropUnitRef.current.contains(event.target as Node)
-      ) {
+
+      if (dropUnitRef.current && !dropUnitRef.current.contains(target)) {
         setOpen(false);
       }
-      if (
-        dropCities.current &&
-        !dropCities.current.contains(event.target as Node)
-      ) {
+
+      if (dropCities.current && !dropCities.current.contains(target)) {
         setCities([]);
       }
-    }
+    };
 
     document.addEventListener("mousedown", handleClickOutside);
-    if (cities.length > 0) {
-      setSelectedIndex(0);
-    }
-    console.log(selectedIndex);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [cities]);
+  }, []);
 
   return (
     <>
       <header className="header">
         <div className="header-container">
-          <img className="logo" src={`/assets/images/logo.svg`} />
-          {/* <button className="units-button">Units ▼</button> */}
+          <img className="logo" src="/assets/images/logo.svg" />
           <Units
             open={open}
             setOpen={setOpen}
@@ -225,7 +256,6 @@ const Home = () => {
       </header>
 
       <main className="main">
-        {/* Search Section */}
         <section className="search-section">
           <h1 className="main-title">How’s the sky looking today?</h1>
 
@@ -270,12 +300,7 @@ const Home = () => {
                   {cities.map((city, index) => (
                     <div
                       key={index}
-                      ref={(el) => {
-                        itemRefs.current[index] = el;
-                      }}
-                      className={`dropdown-item-city ${
-                        selectedIndex === index ? "active" : ""
-                      }`}
+                      className={`dropdown-item-city ${selectedIndex === index ? "active" : ""}`}
                       onClick={() => {
                         setQuery(`${city.name}-${city.country}`);
                         setCities([]);
@@ -293,6 +318,7 @@ const Home = () => {
                 </div>
               )}
             </div>
+
             <button
               className="search-button"
               onClick={() => fetchWeatherData(query)}
@@ -303,7 +329,6 @@ const Home = () => {
         </section>
 
         <div className="content-grid">
-          {/* LEFT COLUMN */}
           <div className="left-column">
             <section className="current-weather">
               <div className="weather-main">
@@ -311,6 +336,7 @@ const Home = () => {
                   <h2 className="city-name">Berlin, Germany</h2>
                   <p className="date">Tuesday, Aug 5, 2025</p>
                 </div>
+
                 <h1 className="temperature">
                   <img
                     src={`/assets/images/icon-${today.icon}.webp`}
@@ -350,32 +376,27 @@ const Home = () => {
                         style={{ height: "60px" }}
                       />
                     </p>
-                    <p className="day-temp">{temp} </p>
+                    <p className="day-temp">{temp}</p>
                   </div>
                 ))}
               </div>
             </section>
           </div>
 
-          {/* RIGHT COLUMN */}
           <section className="hourly-forecast">
             <div className="hourly-scroll">
               <div className="hourly-header">
                 <h3 className="section-title">
                   <span>Hourly forecast</span>{" "}
                   <span>
-                    {/* DROPDOWN */}
                     <div className="dropdown-container" ref={dropdownRef}>
                       <button
                         className="dropdown-button"
-                        onClick={() => setIsOpen(!isOpen)}
+                        onClick={() => setIsOpen((prev) => !prev)}
                       >
                         {selectedDay}
                         <span className={`arrow ${isOpen ? "rotate" : ""}`}>
-                          <img
-                            src={`/assets/images/icon-dropdown.svg`}
-                            alt=""
-                          />
+                          <img src="/assets/images/icon-dropdown.svg" alt="" />
                         </span>
                       </button>
 
@@ -384,9 +405,7 @@ const Home = () => {
                           {hourWeekD.map((day) => (
                             <button
                               key={day}
-                              className={`dropdown-item ${
-                                selectedDay === day ? "active" : ""
-                              }`}
+                              className={`dropdown-item ${selectedDay === day ? "active" : ""}`}
                               onClick={() => {
                                 setSelectedDay(day);
                                 setIsOpen(false);
