@@ -54,6 +54,7 @@ const Home = () => {
       const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
       const data = await res.json();
       console.log(data);
+      setSelectedDay(week[new Date().getDay()]);
       setForecast(data);
     } catch (err) {
       console.log(err);
