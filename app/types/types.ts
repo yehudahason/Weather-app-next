@@ -10,7 +10,9 @@ export type City = {
   };
 };
 
-export type WeatherEntry = [day: string, icon: string, temp: string] | [];
+export type WeatherEntry =
+  | [day: string, icon: string, temp: string, today: number]
+  | [];
 export type HourEntry =
   | [icon: string, time: string, temp: number | string]
   | [];
@@ -54,6 +56,7 @@ export type CurrentConditions = {
   precip: number;
   windspeed: number;
   conditions: string;
+  datetimeEpoch: number;
 };
 
 export type ForecastDayWithHours = ForecastDay & {

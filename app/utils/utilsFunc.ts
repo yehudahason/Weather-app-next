@@ -4,18 +4,16 @@ import { week } from "../types/types";
 
 export const shortWeekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export function getDays(): number[] {
+export function getDays(today: number): number[] {
   let days = [];
-  const today = new Date().getDay(); // 0–6 (Sun–Sat)
   for (let i = 0; i < 7; i++) {
     days.push((today + i) % 7);
   }
   return days;
 }
 
-export function getLiteralDays(): string[] {
+export function getLiteralDays(today: number): string[] {
   let days = [];
-  const today = new Date().getDay(); // 0–6 (Sun–Sat)
   for (let i = 0; i < 7; i++) {
     days.push(week[(today + i) % 7]);
   }
@@ -61,14 +59,16 @@ export function weekForecast(
   icons: string[],
   minTemps: (number | string)[],
   maxTemps: (number | string)[],
+  today: number,
 ): WeatherEntry[] {
-  const days = getDays();
+  const days = getDays(today);
   const week: WeatherEntry[] = [];
   for (let i = 0; i < 7; i++) {
     let day: WeatherEntry = [
       shortWeekDays[days[i]],
       getIcon(icons[i]),
       `${maxTemps[i]}°     ${minTemps[i]}°`,
+      today,
     ];
     week.push(day);
   }

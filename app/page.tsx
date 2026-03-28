@@ -20,12 +20,10 @@ import {
 
 const Home = () => {
   const [system, setSystem] = useState<UnitSystem>("metric");
-  const [selectedDay, setSelectedDay] = useState<string>(
-    week[new Date().getDay()],
-  );
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false);
-  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const [selectedDay, setSelectedDay] = useState<string | "">("");
+  const [isDayOpen, setDayIsOpen] = useState<boolean>(false);
+  const [unitOpen, setUnitOpen] = useState<boolean>(false);
+  const [citySelectedIndex, setCitySelectedIndex] = useState<number>(-1);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const dropUnitRef = useRef<HTMLDivElement | null>(null);
@@ -36,25 +34,28 @@ const Home = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
 
-  const hourWeekD = useMemo(() => getLiteralDays(), [forecast]);
+  const hourWeekD = useMemo(
+    () => getLiteralDays(week.indexOf(selectedDay)),
+    [forecast],
+  );
 
   const handleSearch = async (value: string) => {
     setQuery(value);
 
     if (!value.trim()) {
       setCities([]);
-      setSelectedIndex(-1);
+      setCitySelectedIndex(-1);
       return;
     }
 
     try {
       const results = await searchCities(value);
       setCities(results);
-      setSelectedIndex(results.length > 0 ? 0 : -1);
+      setCitySelectedIndex(results.length > 0 ? 0 : -1);
     } catch (error) {
       console.error("Failed to search cities:", error);
       setCities([]);
-      setSelectedIndex(-1);
+      setCitySelectedIndex(-1);
     }
   };
 
@@ -89,8 +90,18 @@ const Home = () => {
 
       const data: ForecastResponse = await res.json();
       console.log(data);
+      if (data.days?.length) {
+        /*  const dayName = new Date(
+          // @ts-ignore
+          data.days[0].datetimeEpoch * 1000,
+        ).toLocaleDateString("en-US", { weekday: "long" });*/
+        const dayName = new Date(data.days[0].datetime).toLocaleDateString(
+          "en-US",
+          { weekday: "long" },
+        );
+        setSelectedDay(dayName);
+      }
 
-      setSelectedDay(week[new Date().getDay()]);
       setForecast(data);
       setQuery(city);
     } catch (error) {
@@ -104,7 +115,7 @@ const Home = () => {
     let maxTemps: (number | "")[] = Array(7).fill("");
 
     if (!forecast.days) {
-      return weekForecast(icons, minTemps, maxTemps);
+      return weekForecast(icons, minTemps, maxTemps, 0);
     }
 
     icons = [];
@@ -125,7 +136,7 @@ const Home = () => {
       }
     });
 
-    return weekForecast(icons, minTemps, maxTemps);
+    return weekForecast(icons, minTemps, maxTemps, week.indexOf(selectedDay));
   }, [forecast.days, system]);
 
   const today: TodayForecast = useMemo(() => {
@@ -195,11 +206,11 @@ const Home = () => {
       const target = event.target as Node;
 
       if (dropdownRef.current && !dropdownRef.current.contains(target)) {
-        setIsOpen(false);
+        setDayIsOpen(false);
       }
 
       if (dropUnitRef.current && !dropUnitRef.current.contains(target)) {
-        setOpen(false);
+        setUnitOpen(false);
       }
 
       if (dropCities.current && !dropCities.current.contains(target)) {
@@ -220,8 +231,8 @@ const Home = () => {
         <div className="header-container">
           <img className="logo" src="/assets/images/logo.svg" />
           <Units
-            open={open}
-            setOpen={setOpen}
+            unitOpen={unitOpen}
+            setUnitOpen={setUnitOpen}
             ref={dropUnitRef}
             system={system}
             setSystem={setSystem}
@@ -246,21 +257,21 @@ const Home = () => {
 
                   if (e.code === "ArrowDown") {
                     e.preventDefault();
-                    setSelectedIndex((prev) =>
+                    setCitySelectedIndex((prev) =>
                       prev < cities.length - 1 ? prev + 1 : 0,
                     );
                   }
 
                   if (e.code === "ArrowUp") {
                     e.preventDefault();
-                    setSelectedIndex((prev) =>
+                    setCitySelectedIndex((prev) =>
                       prev > 0 ? prev - 1 : cities.length - 1,
                     );
                   }
 
-                  if (e.code === "Enter" && selectedIndex >= 0) {
+                  if (e.code === "Enter" && citySelectedIndex >= 0) {
                     e.preventDefault();
-                    const city = cities[selectedIndex];
+                    const city = cities[citySelectedIndex];
 
                     setQuery(`${city.name}-${city.country}`);
                     setCities([]);
@@ -274,7 +285,7 @@ const Home = () => {
                   {cities.map((city, index) => (
                     <div
                       key={index}
-                      className={`dropdown-item-city ${selectedIndex === index ? "active" : ""}`}
+                      className={`dropdown-item-city ${citySelectedIndex === index ? "active" : ""}`}
                       onClick={() => {
                         setQuery(`${city.name}-${city.country}`);
                         setCities([]);
@@ -366,15 +377,15 @@ const Home = () => {
                     <div className="dropdown-container" ref={dropdownRef}>
                       <button
                         className="dropdown-button"
-                        onClick={() => setIsOpen((prev) => !prev)}
+                        onClick={() => setDayIsOpen((prev) => !prev)}
                       >
                         {selectedDay}
-                        <span className={`arrow ${isOpen ? "rotate" : ""}`}>
+                        <span className={`arrow ${isDayOpen ? "rotate" : ""}`}>
                           <img src="/assets/images/icon-dropdown.svg" alt="" />
                         </span>
                       </button>
 
-                      {isOpen && (
+                      {isDayOpen && (
                         <div className="dropdown-menu">
                           {hourWeekD.map((day) => (
                             <button
@@ -382,7 +393,7 @@ const Home = () => {
                               className={`dropdown-item ${selectedDay === day ? "active" : ""}`}
                               onClick={() => {
                                 setSelectedDay(day);
-                                setIsOpen(false);
+                                setDayIsOpen(false);
                               }}
                             >
                               {day}

@@ -4,12 +4,12 @@ import { Settings } from "lucide-react";
 interface UnitsProps {
   system: "metric" | "imperial";
   setSystem: (system: "metric" | "imperial") => void;
-  open: boolean;
-  setOpen: (value: boolean) => void;
+  unitOpen: boolean;
+  setUnitOpen: (value: boolean) => void;
 }
 
 const Units = forwardRef<HTMLDivElement, UnitsProps>(
-  ({ open, setOpen, system, setSystem }, ref) => {
+  ({ unitOpen, setUnitOpen, system, setSystem }, ref) => {
     const SYSTEMS = {
       metric: {
         label: "Switch to Imperial",
@@ -38,14 +38,14 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
     return (
       <div className="units" ref={ref}>
         {/* Button */}
-        <button className="units-btn" onClick={() => setOpen(!open)}>
+        <button className="units-btn" onClick={() => setUnitOpen(!unitOpen)}>
           <Settings size={16} />
           Units
           <span className="caret">▾</span>
         </button>
 
         {/* Dropdown */}
-        {open && (
+        {unitOpen && (
           <div className="units-panel">
             <div className="units-header" onClick={toggle}>
               {active.label}
