@@ -82,8 +82,8 @@ const Home = () => {
           return;
         }
 
-        resolvedLon = resCity[0].coord.lon;
-        resolvedLat = resCity[0].coord.lat;
+        resolvedLon = resCity[0].lon;
+        resolvedLat = resCity[0].lat;
       }
 
       const res = await fetch(
@@ -321,7 +321,7 @@ const Home = () => {
                         inputRef.current?.focus();
                       }}
                     >
-                      {city.name} - {city.state} - {city.country}
+                      {city.name}, {city.state}, {city.country}
                     </div>
                   ))}
                 </div>
