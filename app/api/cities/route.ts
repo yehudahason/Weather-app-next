@@ -1,15 +1,6 @@
 import cities from "@/public/city.list.json";
 import { NextResponse } from "next/server";
-
-type City = {
-  id: number;
-  name: string;
-  country: string;
-  coord: {
-    lon: number;
-    lat: number;
-  };
-};
+import { City } from "@/app/types/types";
 
 const indexedCities: (City & { searchName: string })[] = (cities as City[]).map(
   (c) => ({
