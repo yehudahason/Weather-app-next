@@ -2,21 +2,21 @@ import cities from "@/public/city.list.json";
 import { NextResponse } from "next/server";
 import { City } from "@/app/types/types";
 
-const indexedCities: (City & { searchName: string })[] = (cities as City[]).map(
-  (c) => ({
-    ...c,
-    searchName: c.name.toLowerCase(),
-  }),
-);
+// normalize query same way as your dataset
+const normalize = (str: string) => str.toLowerCase().replace(/\s/g, "");
+
+const indexedCities: City[] = cities as City[];
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const query = searchParams.get("q")?.toLowerCase() || "";
+  const rawQuery = searchParams.get("q") || "";
 
-  if (!query) return NextResponse.json([]);
+  if (!rawQuery) return NextResponse.json([]);
+
+  const query = normalize(rawQuery);
 
   const results = indexedCities
-    .filter((c) => c.searchName.startsWith(query))
+    .filter((c) => c.search.startsWith(query)) // 🔥 use search field
     .slice(0, 10);
 
   return NextResponse.json(results);
