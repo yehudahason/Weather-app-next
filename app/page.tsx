@@ -321,7 +321,7 @@ const Home = () => {
                         inputRef.current?.focus();
                       }}
                     >
-                      {city.name}, {city.state}, {city.country}
+                      {city.name} - {city.state}, {city.country}.
                     </div>
                   ))}
                 </div>
