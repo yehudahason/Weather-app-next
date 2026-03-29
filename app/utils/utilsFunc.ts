@@ -78,3 +78,29 @@ export function weekForecast(
 export function fToCelius(fahrenheit: number | ""): number {
   return Number((((+fahrenheit - 32) * 5) / 9).toFixed(1));
 }
+export function getDate(date: string): string {
+  const fdate = new Date(date);
+
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(fdate);
+
+  console.log(formatted);
+  // Output: Tuesday, Aug 5, 2025
+
+  console.log(formatted);
+  return formatted;
+}
+export const toCelsius = (f: number | "") => ((+f - 32) * 5) / 9;
+export const toKmh = (mph: number | ""): number => {
+  if (!mph) return 0;
+  return +(+mph * 1.60934).toFixed(1);
+};
+
+export const toMm = (inch: number | ""): number => {
+  if (!inch) return 0;
+  return Number((inch * 25.4).toFixed(1));
+};

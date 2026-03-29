@@ -8,8 +8,12 @@ import {
   hoursForecast,
   getLiteralDays,
   fToCelius,
+  toKmh,
+  toMm,
+  getDate,
 } from "./utils/utilsFunc";
 import { getIcon } from "./utils/weatherIcons";
+import { getCountryName } from "./utils/getWeather";
 import {
   City,
   UnitSystem,
@@ -30,7 +34,9 @@ const Home = () => {
   const dropCities = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const [query, setQuery] = useState<string>("haifa");
+  const [query, setQuery] = useState<string>("");
+  const [location, setLocation] = useState<string>("Berlin, Germany");
+  const [date, setDate] = useState<string>("2025");
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
 
@@ -69,7 +75,7 @@ const Home = () => {
       let resolvedLat = lat;
 
       if (resolvedLon == null || resolvedLat == null) {
-        const resCity = await searchCities(city);
+        var resCity = await searchCities(city);
 
         if (!resCity.length) {
           console.error("City not found");
@@ -104,6 +110,15 @@ const Home = () => {
 
       setForecast(data);
       setQuery(city);
+      if (data.days && data.days.length > 0) {
+        setDate(getDate(data.days[0].datetime));
+      }
+      // setLocation(`${resCity}`);
+      if (!lon || !lat) {
+        setLocation(
+          `${city.charAt(0).toUpperCase() + city.slice(1)}, ${getCountryName(resCity[0].country)}`,
+        );
+      }
     } catch (error) {
       console.error("Failed to fetch weather data:", error);
     }
@@ -157,10 +172,11 @@ const Home = () => {
 
     return {
       temp: system === "metric" ? +fToCelius(current.temp) : current.temp,
-      feelslike: current.feelslike,
-      wind: current.windspeed,
+      feelslike:
+        system === "metric" ? +fToCelius(current.feelslike) : current.feelslike,
+      wind: system === "metric" ? toKmh(current.windspeed) : current.windspeed,
       humidity: current.humidity,
-      precip: current.precip,
+      precip: system === "metric" ? toMm(current.precip) : current.precip,
       icon: getIcon(current.conditions),
     };
   }, [forecast.currentConditions, system]);
@@ -247,6 +263,7 @@ const Home = () => {
           <div className="search-box">
             <div className="input-wrapper">
               <input
+                placeholder="Search for a place.."
                 ref={inputRef}
                 className="search-input"
                 value={query}
@@ -274,12 +291,19 @@ const Home = () => {
                     const city = cities[citySelectedIndex];
 
                     setQuery(`${city.name}-${city.country}`);
+                    setLocation(
+                      `${city.name}, ${getCountryName(city.country)}`,
+                    );
                     setCities([]);
                     fetchWeatherData(city.name, city.coord.lon, city.coord.lat);
                   }
                 }}
               />
-
+              <img
+                src="/assets/images/icon-search.svg"
+                alt="Search"
+                className="searchIcon"
+              />
               {cities.length > 0 && (
                 <div className="dropdown-city" ref={dropCities}>
                   {cities.map((city, index) => (
@@ -288,6 +312,10 @@ const Home = () => {
                       className={`dropdown-item-city ${citySelectedIndex === index ? "active" : ""}`}
                       onClick={() => {
                         setQuery(`${city.name}-${city.country}`);
+                        setLocation(
+                          `${city.name}, ${getCountryName(city.country)}`,
+                        );
+
                         setCities([]);
                         fetchWeatherData(
                           city.name,
@@ -318,8 +346,8 @@ const Home = () => {
             <section className="current-weather">
               <div className="weather-main">
                 <div className="left-col">
-                  <h2 className="city-name">Berlin, Germany</h2>
-                  <p className="date">Tuesday, Aug 5, 2025</p>
+                  <h2 className="city-name">{location}</h2>
+                  <p className="date">{date}</p>
                 </div>
 
                 <h1 className="temperature">
@@ -334,10 +362,16 @@ const Home = () => {
 
               <div className="weather-details">
                 {[
-                  ["Feels Like", `${today.feelslike}`],
-                  ["Humidity", `${today.humidity}`],
-                  ["Wind", `${today.wind}`],
-                  ["Precipitation", `${today.precip}`],
+                  ["Feels Like", `${today.feelslike}°`],
+                  ["Humidity", `${today.humidity} %`],
+                  [
+                    "Wind",
+                    `${today.wind} ${system === "metric" ? "km/h" : "mph"}`,
+                  ],
+                  [
+                    "Precipitation",
+                    `${today.precip} ${system === "metric" ? "mm" : "in"}`,
+                  ],
                 ].map(([title, value]) => (
                   <div key={title} className="detail-card">
                     <p className="detail-title">{title}</p>
