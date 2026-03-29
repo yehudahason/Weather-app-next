@@ -4,6 +4,7 @@ export type City = {
   lon: number;
   lat: number;
   search: string;
+  state: string;
 };
 
 export type WeatherEntry =

@@ -17,7 +17,7 @@ export async function GET(req: Request) {
 
   const results = indexedCities
     .filter((c) => c.search.startsWith(query)) // 🔥 use search field
-    .slice(0, 10);
+    .slice(0, 13);
 
   return NextResponse.json(results);
 }
