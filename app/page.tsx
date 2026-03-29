@@ -295,7 +295,7 @@ const Home = () => {
                       `${city.name}, ${getCountryName(city.country)}`,
                     );
                     setCities([]);
-                    fetchWeatherData(city.name, city.coord.lon, city.coord.lat);
+                    fetchWeatherData(city.name, city.lon, city.lat);
                   }
                 }}
               />
@@ -317,11 +317,7 @@ const Home = () => {
                         );
 
                         setCities([]);
-                        fetchWeatherData(
-                          city.name,
-                          city.coord.lon,
-                          city.coord.lat,
-                        );
+                        fetchWeatherData(city.name, city.lon, city.lat);
                         inputRef.current?.focus();
                       }}
                     >
