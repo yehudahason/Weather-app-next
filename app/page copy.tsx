@@ -75,20 +75,17 @@ const Home = () => {
       let resolvedLat = lat;
 
       if (resolvedLon == null || resolvedLat == null) {
-        const resCity = await searchCities(city);
+        var resCity = await searchCities(city);
 
-        if (!resCity || resCity.length === 0) {
+        if (!resCity.length) {
           console.error("City not found");
           return;
         }
 
-        const selectedCity = resCity[0];
-
-        resolvedLon = selectedCity.lon;
-        resolvedLat = selectedCity.lat;
-
+        resolvedLon = resCity[0].lon;
+        resolvedLat = resCity[0].lat;
         setLocation(
-          `${selectedCity.name}, ${getCountryName(selectedCity.country)}`,
+          `${resCity[0].name}, ${getCountryName(resCity[0].country)}`,
         );
       }
 
@@ -101,23 +98,25 @@ const Home = () => {
       }
 
       const data: ForecastResponse = await res.json();
-
+      console.log(data);
       if (data.days?.length) {
         const dayName = new Date(data.days[0].datetime).toLocaleDateString(
           "en-US",
           { weekday: "long" },
         );
         setSelectedDay(dayName);
-
-        setDate(getDate(data.days[0].datetime));
       }
 
       setForecast(data);
       setQuery(city);
+      if (data.days && data.days.length > 0) {
+        setDate(getDate(data.days[0].datetime));
+      }
     } catch (error) {
       console.error("Failed to fetch weather data:", error);
     }
   };
+
   const weekD = useMemo(() => {
     let icons: string[] = Array(7).fill("blank");
     let minTemps: (number | "")[] = Array(7).fill("");
@@ -298,17 +297,6 @@ const Home = () => {
                 alt="Search"
                 className="searchIcon"
               />
-              {query && !cities && (
-                <div className="dropdown-city loading">
-                  <img src={"/assets/images/icon-loading.svg"} />
-                  Search in progress..
-                </div>
-              )}
-              {cities.length === 0 && query.trim() && !query.includes("-") && (
-                <div className="notFound">
-                  <p>No Search results found!</p>
-                </div>
-              )}
               {cities.length > 0 && (
                 <div className="dropdown-city" ref={dropCities}>
                   {cities.map((city, index) => (
