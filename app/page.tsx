@@ -41,6 +41,7 @@ const Home = () => {
   const [forecast, setForecast] = useState<ForecastResponse>({});
   const [loading, setLoading] = useState<boolean>(false); // ✅ added
   const [showForcast, setShowForcast] = useState<boolean>(false); // ✅ added
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
   const hourWeekD = useMemo(
     () => getLiteralDays(week.indexOf(selectedDay)),
     [forecast],
@@ -53,11 +54,14 @@ const Home = () => {
       setCities([]);
       setCitySelectedIndex(-1);
       setLoading(false);
+      setHasSearched(false); // ✅ reset
       return;
     }
 
-    setLoading(true); // ✅ start loading
-    setShowForcast(false); // ✅ hide forecast while searching
+    setLoading(true);
+    setShowForcast(false);
+    setHasSearched(true); // ✅ mark real search
+
     try {
       const results = await searchCities(value);
       setCities(results);
@@ -67,10 +71,9 @@ const Home = () => {
       setCities([]);
       setCitySelectedIndex(-1);
     } finally {
-      setLoading(false); // ✅ stop loading
+      setLoading(false);
     }
   };
-
   const fetchWeatherData = async (
     city: string,
     lon: number | null = null,
@@ -312,7 +315,7 @@ const Home = () => {
                   Search in progress..
                 </div>
               )}
-              {!loading && query && cities.length === 0 && (
+              {!loading && hasSearched && cities.length === 0 && (
                 <div className="notFound">
                   <p>No Search results found!</p>
                 </div>
