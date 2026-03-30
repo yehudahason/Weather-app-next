@@ -39,7 +39,7 @@ const Home = () => {
   const [date, setDate] = useState<string>("2025");
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
-
+  const [loading, setLoading] = useState<boolean>(false); // ✅ added
   const hourWeekD = useMemo(
     () => getLiteralDays(week.indexOf(selectedDay)),
     [forecast],
@@ -51,8 +51,11 @@ const Home = () => {
     if (!value.trim()) {
       setCities([]);
       setCitySelectedIndex(-1);
+      setLoading(false);
       return;
     }
+
+    setLoading(true); // ✅ start loading
 
     try {
       const results = await searchCities(value);
@@ -62,6 +65,8 @@ const Home = () => {
       console.error("Failed to search cities:", error);
       setCities([]);
       setCitySelectedIndex(-1);
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
   };
 
@@ -298,18 +303,18 @@ const Home = () => {
                 alt="Search"
                 className="searchIcon"
               />
-              {query && !cities && (
+              {loading && (
                 <div className="dropdown-city loading">
                   <img src={"/assets/images/icon-loading.svg"} />
                   Search in progress..
                 </div>
               )}
-              {cities.length === 0 && query.trim() && !query.includes("-") && (
+              {!loading && query && cities.length === 0 && (
                 <div className="notFound">
                   <p>No Search results found!</p>
                 </div>
               )}
-              {cities.length > 0 && (
+              {!loading && cities.length > 0 && (
                 <div className="dropdown-city" ref={dropCities}>
                   {cities.map((city, index) => (
                     <div
