@@ -40,6 +40,7 @@ const Home = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
   const [loading, setLoading] = useState<boolean>(false); // ✅ added
+  const [showForcast, setShowForcast] = useState<boolean>(false); // ✅ added
   const hourWeekD = useMemo(
     () => getLiteralDays(week.indexOf(selectedDay)),
     [forecast],
@@ -95,8 +96,10 @@ const Home = () => {
         setLocation(
           `${selectedCity.name}, ${getCountryName(selectedCity.country)}`,
         );
+        setShowForcast(true);
       }
 
+      setShowForcast(true);
       const res = await fetch(
         `/api/weather?lat=${resolvedLat}&lon=${resolvedLon}`,
       );
@@ -346,123 +349,129 @@ const Home = () => {
             </button>
           </div>
         </section>
+        {showForcast && (
+          <div className="content-grid">
+            <div className="left-column">
+              <section className="current-weather">
+                <div className="weather-main">
+                  <div className="left-col">
+                    <h2 className="city-name">{location}</h2>
+                    <p className="date">{date}</p>
+                  </div>
 
-        <div className="content-grid">
-          <div className="left-column">
-            <section className="current-weather">
-              <div className="weather-main">
-                <div className="left-col">
-                  <h2 className="city-name">{location}</h2>
-                  <p className="date">{date}</p>
+                  <h1 className="temperature">
+                    <img
+                      src={`/assets/images/icon-${today.icon}.webp`}
+                      alt="icon"
+                      style={{ height: "60px" }}
+                    />
+                    {today.temp}°
+                  </h1>
                 </div>
 
-                <h1 className="temperature">
-                  <img
-                    src={`/assets/images/icon-${today.icon}.webp`}
-                    alt="icon"
-                    style={{ height: "60px" }}
-                  />
-                  {today.temp}°
-                </h1>
-              </div>
+                <div className="weather-details">
+                  {[
+                    ["Feels Like", `${today.feelslike}°`],
+                    ["Humidity", `${today.humidity} %`],
+                    [
+                      "Wind",
+                      `${today.wind} ${system === "metric" ? "km/h" : "mph"}`,
+                    ],
+                    [
+                      "Precipitation",
+                      `${today.precip} ${system === "metric" ? "mm" : "in"}`,
+                    ],
+                  ].map(([title, value]) => (
+                    <div key={title} className="detail-card">
+                      <p className="detail-title">{title}</p>
+                      <h3 className="detail-value">{value}</h3>
+                    </div>
+                  ))}
+                </div>
+              </section>
 
-              <div className="weather-details">
-                {[
-                  ["Feels Like", `${today.feelslike}°`],
-                  ["Humidity", `${today.humidity} %`],
-                  [
-                    "Wind",
-                    `${today.wind} ${system === "metric" ? "km/h" : "mph"}`,
-                  ],
-                  [
-                    "Precipitation",
-                    `${today.precip} ${system === "metric" ? "mm" : "in"}`,
-                  ],
-                ].map(([title, value]) => (
-                  <div key={title} className="detail-card">
-                    <p className="detail-title">{title}</p>
-                    <h3 className="detail-value">{value}</h3>
-                  </div>
-                ))}
-              </div>
-            </section>
+              <section className="daily-forecast">
+                <h3 className="section-title">Daily forecast</h3>
 
-            <section className="daily-forecast">
-              <h3 className="section-title">Daily forecast</h3>
+                <div className="daily-cards">
+                  {weekD.map(([day, icon, temp]) => (
+                    <div key={day} className="daily-card">
+                      <p className="day">{day}</p>
+                      <p className="weather-icon">
+                        <img
+                          src={`/assets/images/icon-${icon}.webp`}
+                          alt="icon"
+                          style={{ height: "60px" }}
+                        />
+                      </p>
+                      <p className="day-temp">{temp}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
 
-              <div className="daily-cards">
-                {weekD.map(([day, icon, temp]) => (
-                  <div key={day} className="daily-card">
-                    <p className="day">{day}</p>
-                    <p className="weather-icon">
-                      <img
-                        src={`/assets/images/icon-${icon}.webp`}
-                        alt="icon"
-                        style={{ height: "60px" }}
-                      />
-                    </p>
-                    <p className="day-temp">{temp}</p>
-                  </div>
-                ))}
+            <section className="hourly-forecast">
+              <div className="hourly-scroll">
+                <div className="hourly-header">
+                  <h3 className="section-title">
+                    <span>Hourly forecast</span>{" "}
+                    <span>
+                      <div className="dropdown-container" ref={dropdownRef}>
+                        <button
+                          className="dropdown-button"
+                          onClick={() => setDayIsOpen((prev) => !prev)}
+                        >
+                          {selectedDay}
+                          <span
+                            className={`arrow ${isDayOpen ? "rotate" : ""}`}
+                          >
+                            <img
+                              src="/assets/images/icon-dropdown.svg"
+                              alt=""
+                            />
+                          </span>
+                        </button>
+
+                        {isDayOpen && (
+                          <div className="dropdown-menu">
+                            {hourWeekD.map((day) => (
+                              <button
+                                key={day}
+                                className={`dropdown-item ${selectedDay === day ? "active" : ""}`}
+                                onClick={() => {
+                                  setSelectedDay(day);
+                                  setDayIsOpen(false);
+                                }}
+                              >
+                                {day}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </span>
+                  </h3>
+                </div>
+
+                <div className="hourly-list">
+                  {hourForecast.map(([icon, time, temp]) => (
+                    <div key={time} className="hour-item">
+                      <div className="left">
+                        <img
+                          src={`/assets/images/icon-${icon}.webp`}
+                          alt="icon"
+                        />
+                        <span>{time}</span>
+                      </div>
+                      <p className="hour-temp">{temp}°</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
           </div>
-
-          <section className="hourly-forecast">
-            <div className="hourly-scroll">
-              <div className="hourly-header">
-                <h3 className="section-title">
-                  <span>Hourly forecast</span>{" "}
-                  <span>
-                    <div className="dropdown-container" ref={dropdownRef}>
-                      <button
-                        className="dropdown-button"
-                        onClick={() => setDayIsOpen((prev) => !prev)}
-                      >
-                        {selectedDay}
-                        <span className={`arrow ${isDayOpen ? "rotate" : ""}`}>
-                          <img src="/assets/images/icon-dropdown.svg" alt="" />
-                        </span>
-                      </button>
-
-                      {isDayOpen && (
-                        <div className="dropdown-menu">
-                          {hourWeekD.map((day) => (
-                            <button
-                              key={day}
-                              className={`dropdown-item ${selectedDay === day ? "active" : ""}`}
-                              onClick={() => {
-                                setSelectedDay(day);
-                                setDayIsOpen(false);
-                              }}
-                            >
-                              {day}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </span>
-                </h3>
-              </div>
-
-              <div className="hourly-list">
-                {hourForecast.map(([icon, time, temp]) => (
-                  <div key={time} className="hour-item">
-                    <div className="left">
-                      <img
-                        src={`/assets/images/icon-${icon}.webp`}
-                        alt="icon"
-                      />
-                      <span>{time}</span>
-                    </div>
-                    <p className="hour-temp">{temp}°</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </div>
+        )}
       </main>
     </>
   );
