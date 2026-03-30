@@ -57,7 +57,7 @@ const Home = () => {
     }
 
     setLoading(true); // ✅ start loading
-
+    setShowForcast(false); // ✅ hide forecast while searching
     try {
       const results = await searchCities(value);
       setCities(results);
