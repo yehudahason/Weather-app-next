@@ -1,32 +1,46 @@
 import cities from "@/public/city.list.json";
 import { NextResponse } from "next/server";
 import { City } from "@/app/types/types";
+import { normalize, toEnglish } from "@/app/utils/utilsFunc";
 
-// normalize query same way as your dataset
-const normalize = (str: string) => {
-  str = toEnglish(str);
-  return str.toLowerCase().replace(/\s/g, "");
-};
-
-function toEnglish(text: string): string {
-  return text
-    .normalize("NFD") // split letters + accents
-    .replace(/[\u0300-\u036f]/g, ""); // remove accents
-}
-
-const indexedCities: City[] = cities as City[];
+// ✅ normalize dataset too
+const indexedCities: City[] = (cities as City[]).map((c) => ({
+  ...c,
+  search: normalize(c.name),
+}));
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const rawQuery = searchParams.get("q") || "";
 
-  if (!rawQuery) return NextResponse.json([]);
+  if (!rawQuery || rawQuery.length < 2) {
+    return NextResponse.json([]);
+  }
 
   const query = normalize(rawQuery);
 
-  const results = indexedCities
-    .filter((c) => c.search.startsWith(query)) // 🔥 use search field
-    .slice(0, 13);
+  const pool: { city: City; score: number }[] = [];
 
-  return NextResponse.json(results);
+  for (const c of indexedCities) {
+    const index = c.search.indexOf(query);
+    if (index === -1) continue;
+
+    const score = index === 0 ? 0 : 1;
+
+    pool.push({ city: c, score });
+
+    if (pool.length >= 50) break;
+  }
+
+  pool.sort((a, b) => {
+    if (a.score !== b.score) return a.score - b.score;
+
+    if (a.city.name.length !== b.city.name.length) {
+      return a.city.name.length - b.city.name.length;
+    }
+
+    return a.city.name.localeCompare(b.city.name);
+  });
+
+  return NextResponse.json(pool.slice(0, 13).map((r) => r.city));
 }

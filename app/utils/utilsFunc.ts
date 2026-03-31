@@ -104,3 +104,11 @@ export const toMm = (inch: number | ""): number => {
   if (!inch) return 0;
   return Number((inch * 25.4).toFixed(1));
 };
+export const normalize = (str: string) => {
+  str = toEnglish(str);
+  return str.toLowerCase().replace(/\s/g, "").trim();
+};
+
+export function toEnglish(text: string): string {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}

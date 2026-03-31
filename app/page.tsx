@@ -11,6 +11,8 @@ import {
   toKmh,
   toMm,
   getDate,
+  normalize,
+  toEnglish,
 } from "./utils/utilsFunc";
 import { getIcon } from "./utils/weatherIcons";
 import { getCountryName } from "./utils/getWeather";
@@ -21,7 +23,6 @@ import {
   week,
   ForecastResponse,
 } from "./types/types";
-
 const Home = () => {
   const [system, setSystem] = useState<UnitSystem>("metric");
   const [selectedDay, setSelectedDay] = useState<string | "">("");
@@ -39,8 +40,8 @@ const Home = () => {
   const [date, setDate] = useState<string>("2025");
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
-  const [loading, setLoading] = useState<boolean>(false); // ✅ added
-  const [showForcast, setShowForcast] = useState<boolean>(false); // ✅ added
+  const [loading, setLoading] = useState<boolean>(false); //
+  const [showForcast, setShowForcast] = useState<boolean>(false); //
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const abortRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
@@ -109,7 +110,7 @@ const Home = () => {
 
       if (resolvedLon == null || resolvedLat == null) {
         const resCity = await searchCities(city);
-
+        console.log(resCity);
         if (
           !resCity ||
           resCity.length === 0 ||
@@ -121,8 +122,9 @@ const Home = () => {
         }
 
         // ✅ EXACT MATCH ONLY
+        const normalizedQuery = normalize(city);
         const exactCity = resCity.find(
-          (c: City) => c.name.toLowerCase() === city.toLowerCase(),
+          (c: City) => normalize(c.name) === normalizedQuery,
         );
 
         if (!exactCity || requestId !== weatherRequestRef.current) {
@@ -150,6 +152,7 @@ const Home = () => {
       }
 
       const data: ForecastResponse = await res.json();
+      console.log(data);
       if (requestId !== weatherRequestRef.current) return;
       if (data.days?.length) {
         const dayName = new Date(data.days[0].datetime).toLocaleDateString(
