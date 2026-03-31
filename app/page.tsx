@@ -99,18 +99,18 @@ const Home = () => {
 
         if (!exactCity) {
           console.log("No exact match found");
-          setCities([]); // optional: clear dropdown
+          setCities([]);
 
           setHasSearched(true);
           return;
         }
-
+        setHasSearched(false);
         resolvedLon = exactCity.lon;
         resolvedLat = exactCity.lat;
 
         setLocation(`${exactCity.name}, ${getCountryName(exactCity.country)}`);
       }
-
+      setHasSearched(false);
       setShowForcast(true);
 
       const res = await fetch(
@@ -355,7 +355,7 @@ const Home = () => {
 
             <button
               className="search-button"
-              onClick={() => fetchWeatherData(query)}
+              onClick={() => fetchWeatherData(query.trim())}
             >
               Search
             </button>
