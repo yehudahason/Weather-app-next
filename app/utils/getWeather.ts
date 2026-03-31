@@ -28,12 +28,24 @@ export function getCountryName(code: string) {
   return regionNames.of(code);
 }
 
-export async function searchCities(query: string) {
+export async function searchCities(query: string, signal?: AbortSignal) {
   try {
-    const res = await fetch(`/api/cities?q=${query}`);
-    return res.json();
-  } catch (err) {
-    console.log(err);
-    return false;
+    const res = await fetch(`/api/cities?q=${query}`, { signal });
+
+    // ✅ handle HTTP errors
+    if (!res.ok) {
+      throw new Error(`City search failed: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (err: any) {
+    // ✅ ignore cancelled requests (race condition safe)
+    if (err.name === "AbortError") {
+      return null;
+    }
+
+    console.error("searchCities error:", err);
+    throw err;
   }
 }

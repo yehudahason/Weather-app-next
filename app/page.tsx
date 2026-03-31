@@ -42,12 +42,26 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false); // ✅ added
   const [showForcast, setShowForcast] = useState<boolean>(false); // ✅ added
   const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const requestIdRef = useRef(0);
+  const weatherRequestRef = useRef(0);
   const hourWeekD = useMemo(
     () => getLiteralDays(week.indexOf(selectedDay)),
     [forecast],
   );
   const handleSearch = async (value: string) => {
     setQuery(value);
+
+    // 🆔 unique request ID
+    const requestId = ++requestIdRef.current;
+
+    // ❌ cancel previous request
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     if (!value.trim()) {
       setCities([]);
@@ -62,15 +76,25 @@ const Home = () => {
     setHasSearched(true);
 
     try {
-      const results = await searchCities(value);
+      const results = await searchCities(value, controller.signal);
+
+      // 🛑 ignore:
+      // 1. aborted requests
+      // 2. outdated requests
+      if (!results || requestId !== requestIdRef.current) return;
+
       setCities(results);
       setCitySelectedIndex(results.length > 0 ? 0 : -1);
     } catch (error) {
+      if (requestId !== requestIdRef.current) return;
+
       console.error("Failed to search cities:", error);
       setCities([]);
       setCitySelectedIndex(-1);
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
   };
   const fetchWeatherData = async (
@@ -78,6 +102,7 @@ const Home = () => {
     lon: number | null = null,
     lat: number | null = null,
   ) => {
+    const requestId = ++weatherRequestRef.current;
     try {
       let resolvedLon = lon;
       let resolvedLat = lat;
@@ -85,7 +110,11 @@ const Home = () => {
       if (resolvedLon == null || resolvedLat == null) {
         const resCity = await searchCities(city);
 
-        if (!resCity || resCity.length === 0) {
+        if (
+          !resCity ||
+          resCity.length === 0 ||
+          requestId !== weatherRequestRef.current
+        ) {
           console.log("City not found");
           setHasSearched(true);
           return;
@@ -96,7 +125,7 @@ const Home = () => {
           (c: City) => c.name.toLowerCase() === city.toLowerCase(),
         );
 
-        if (!exactCity) {
+        if (!exactCity || requestId !== weatherRequestRef.current) {
           console.log("No exact match found");
           setCities([]);
 
@@ -120,8 +149,9 @@ const Home = () => {
         throw new Error(`Weather request failed with status ${res.status}`);
       }
 
+      if (requestId !== weatherRequestRef.current) return;
       const data: ForecastResponse = await res.json();
-
+      if (requestId !== weatherRequestRef.current) return;
       if (data.days?.length) {
         const dayName = new Date(data.days[0].datetime).toLocaleDateString(
           "en-US",
