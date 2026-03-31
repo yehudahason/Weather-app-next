@@ -87,22 +87,32 @@ const Home = () => {
         const resCity = await searchCities(city);
 
         if (!resCity || resCity.length === 0) {
-          console.error("City not found");
+          console.log("City not found");
+          setHasSearched(true);
           return;
         }
 
-        const selectedCity = resCity[0];
-
-        resolvedLon = selectedCity.lon;
-        resolvedLat = selectedCity.lat;
-
-        setLocation(
-          `${selectedCity.name}, ${getCountryName(selectedCity.country)}`,
+        // ✅ EXACT MATCH ONLY
+        const exactCity = resCity.find(
+          (c: City) => c.name.toLowerCase() === city.toLowerCase(),
         );
-        setShowForcast(true);
+
+        if (!exactCity) {
+          console.log("No exact match found");
+          setCities([]); // optional: clear dropdown
+
+          setHasSearched(true);
+          return;
+        }
+
+        resolvedLon = exactCity.lon;
+        resolvedLat = exactCity.lat;
+
+        setLocation(`${exactCity.name}, ${getCountryName(exactCity.country)}`);
       }
 
       setShowForcast(true);
+
       const res = await fetch(
         `/api/weather?lat=${resolvedLat}&lon=${resolvedLon}`,
       );
@@ -119,7 +129,6 @@ const Home = () => {
           { weekday: "long" },
         );
         setSelectedDay(dayName);
-
         setDate(getDate(data.days[0].datetime));
       }
 
