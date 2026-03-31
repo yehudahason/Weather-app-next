@@ -46,7 +46,6 @@ const Home = () => {
     () => getLiteralDays(week.indexOf(selectedDay)),
     [forecast],
   );
-
   const handleSearch = async (value: string) => {
     setQuery(value);
 
@@ -54,13 +53,13 @@ const Home = () => {
       setCities([]);
       setCitySelectedIndex(-1);
       setLoading(false);
-      setHasSearched(false); // ✅ reset
+      setHasSearched(false);
       return;
     }
 
     setLoading(true);
     setShowForcast(false);
-    setHasSearched(true); // ✅ mark real search
+    setHasSearched(true);
 
     try {
       const results = await searchCities(value);
@@ -355,7 +354,9 @@ const Home = () => {
 
             <button
               className="search-button"
-              onClick={() => fetchWeatherData(query.trim())}
+              onClick={() => {
+                fetchWeatherData(query.trim());
+              }}
             >
               Search
             </button>
