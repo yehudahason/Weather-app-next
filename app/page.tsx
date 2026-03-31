@@ -149,7 +149,6 @@ const Home = () => {
         throw new Error(`Weather request failed with status ${res.status}`);
       }
 
-      if (requestId !== weatherRequestRef.current) return;
       const data: ForecastResponse = await res.json();
       if (requestId !== weatherRequestRef.current) return;
       if (data.days?.length) {
