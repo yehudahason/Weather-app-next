@@ -213,17 +213,44 @@ const Home = () => {
     if (!forecast.currentConditions) {
       return defaultToday;
     }
-
     const current = forecast.currentConditions;
+    Object.keys(current).forEach((key) => {
+      if (current[key as keyof typeof current] == null) {
+        (current as Record<string, any>)[key] = "";
+      }
+    });
+    let { temp, feelslike, windspeed, humidity, precip, conditions } = current;
 
     return {
-      temp: system === "metric" ? +fToCelius(current.temp) : current.temp,
+      temp:
+        temp === null || temp === ""
+          ? "-"
+          : system === "metric"
+            ? +fToCelius(Number(temp))
+            : +Number(temp).toFixed(0),
       feelslike:
-        system === "metric" ? +fToCelius(current.feelslike) : current.feelslike,
-      wind: system === "metric" ? toKmh(current.windspeed) : current.windspeed,
-      humidity: current.humidity.toFixed(0),
-      precip: system === "metric" ? toMm(current.precip) : current.precip,
-      icon: getIcon(current.conditions),
+        feelslike === null || feelslike === ""
+          ? "-"
+          : system === "metric"
+            ? +fToCelius(Number(feelslike))
+            : +Number(feelslike).toFixed(0),
+      wind:
+        windspeed === null || windspeed === ""
+          ? "-"
+          : system === "metric"
+            ? +toKmh(Number(windspeed))
+            : +Number(windspeed).toFixed(0),
+      humidity:
+        humidity === null || humidity === ""
+          ? "-"
+          : +Number(humidity).toFixed(0),
+      precip:
+        precip === null || precip === ""
+          ? "-"
+          : system === "metric"
+            ? +toMm(Number(precip))
+            : +Number(precip).toFixed(0),
+      icon: conditions ? getIcon(conditions) : "blank",
     };
   }, [forecast.currentConditions, system]);
 

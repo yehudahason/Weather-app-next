@@ -621,7 +621,7 @@ body {
   }
 }
 
-@media (min-width: 678px) {
+@media (min-width: 600px) {
   .search-box {
     flex-direction: row;
   }
@@ -636,6 +636,15 @@ body {
     flex-direction: row;
     justify-content: space-between;
     padding: 30px;
+  }
+  .weather-details {
+    grid-template-columns: auto auto auto;
+  }
+  .detail-card {
+    width: 172px;
+  }
+  .daily-cards {
+    grid-template-columns: auto auto auto auto auto;
   }
 }
 /* ========================= */

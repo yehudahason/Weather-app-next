@@ -17,12 +17,12 @@ export type HourEntry =
 export type UnitSystem = "metric" | "imperial";
 
 export type TodayForecast = {
-  temp: number | "";
-  feelslike: number | "";
-  wind: number | "";
-  humidity: number | "" | string;
-  precip: number | "";
-  icon: string | null;
+  temp: number | null | "" | "-";
+  feelslike: number | null | "" | "-";
+  wind: number | null | "" | "-";
+  humidity: number | null | "" | "-";
+  precip: number | null | "" | "-";
+  icon: string | null | "" | "-";
 };
 
 export type ForecastDay = {
@@ -47,13 +47,13 @@ export type ForecastHour = {
 };
 
 export type CurrentConditions = {
-  temp: number;
-  feelslike: number;
-  humidity: number;
-  precip: number;
-  windspeed: number;
-  conditions: string;
-  datetimeEpoch: number;
+  temp: number | null | "";
+  feelslike: number | null | "";
+  humidity: number | null | "";
+  precip: number | null | "";
+  windspeed: number | null | "";
+  conditions: string | null | "";
+  datetimeEpoch: number | null | "";
 };
 
 export type ForecastDayWithHours = ForecastDay & {
