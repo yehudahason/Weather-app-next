@@ -20,7 +20,7 @@ export type TodayForecast = {
   temp: number | "";
   feelslike: number | "";
   wind: number | "";
-  humidity: number | "";
+  humidity: number | "" | string;
   precip: number | "";
   icon: string | null;
 };

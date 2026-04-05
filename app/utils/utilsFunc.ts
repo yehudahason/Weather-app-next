@@ -76,7 +76,7 @@ export function weekForecast(
 }
 
 export function fToCelius(fahrenheit: number | ""): number {
-  return Number((((+fahrenheit - 32) * 5) / 9).toFixed(1));
+  return Number((((+fahrenheit - 32) * 5) / 9).toFixed(0));
 }
 export function getDate(date: string): string {
   const fdate = new Date(date);
@@ -94,15 +94,15 @@ export function getDate(date: string): string {
   console.log(formatted);
   return formatted;
 }
-export const toCelsius = (f: number | "") => ((+f - 32) * 5) / 9;
+export const toCelsius = (f: number | "") => (((+f - 32) * 5) / 9).toFixed(0);
 export const toKmh = (mph: number | ""): number => {
   if (!mph) return 0;
-  return +(+mph * 1.60934).toFixed(1);
+  return +(+mph * 1.60934).toFixed(0);
 };
 
 export const toMm = (inch: number | ""): number => {
   if (!inch) return 0;
-  return Number((inch * 25.4).toFixed(1));
+  return Number((inch * 25.4).toFixed(0));
 };
 export function normalize(str: string) {
   return str
