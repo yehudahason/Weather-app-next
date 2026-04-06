@@ -319,11 +319,12 @@ body {
 /* ===== DETAILS ===== */
 .weather-details {
   display: grid;
-  grid-template-columns: auto auto;
+  display: grid;
+  width: 90%;
+  grid-template-columns: repeat(2, 1fr);
   gap: 21px;
   justify-content: center;
   align-items: center;
-  width: 100%;
 }
 
 .detail-card {
@@ -662,11 +663,7 @@ body {
   .temperature {
     font: var(--text-1);
   }
-  .weather-details {
-    display: grid;
-    width: 90%;
-    grid-template-columns: repeat(2, 1fr);
-  }
+
   .daily-cards {
     grid-template-columns: auto auto auto;
   }
@@ -674,7 +671,6 @@ body {
     width: 100px;
   }
   .detail-card {
-    width: 100%;
     padding: 20px;
   }
   .detail-title {
