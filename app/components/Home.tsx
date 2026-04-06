@@ -7,7 +7,7 @@ import {
   weekForecast,
   hoursForecast,
   getLiteralDays,
-  fToCelius,
+  toCelsius,
   toKmh,
   toMm,
   getDate,
@@ -42,6 +42,8 @@ const Home = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
   const [loading, setLoading] = useState<boolean>(false); //
+  const [loadingForecast, setLoadingForecast] = useState<boolean>(false); //
+  const [apiError, setApiError] = useState<boolean>(false);
   const [showForcast, setShowForcast] = useState<boolean>(false); //
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -121,7 +123,7 @@ const Home = () => {
           setHasSearched(true);
           return;
         }
-
+        setLoadingForecast(true);
         // ✅ EXACT MATCH ONLY
         const normalizedQuery = normalize(city);
         const exactCity = resCity.find(
@@ -149,9 +151,11 @@ const Home = () => {
       );
 
       if (!res.ok) {
-        throw new Error(`Weather request failed with status ${res.status}`);
+        console.log(`Weather request failed with status ${res.status}`);
+        setApiError(true);
+        return;
       }
-
+      setLoadingForecast(false);
       const data: ForecastResponse = await res.json();
       console.log(data);
       if (requestId !== weatherRequestRef.current) return;
@@ -189,8 +193,8 @@ const Home = () => {
       icons.push(day.conditions);
 
       if (system === "metric") {
-        maxTemps.push(+fToCelius(Number(day.tempmax)));
-        minTemps.push(+fToCelius(Number(day.tempmin)));
+        maxTemps.push(+toCelsius(Number(day.tempmax)));
+        minTemps.push(+toCelsius(Number(day.tempmin)));
       } else {
         maxTemps.push(+day.tempmax);
         minTemps.push(+day.tempmin);
@@ -213,7 +217,7 @@ const Home = () => {
     if (!forecast.currentConditions) {
       return defaultToday;
     }
-    const current = forecast.currentConditions;
+    const current = { ...forecast.currentConditions };
     Object.keys(current).forEach((key) => {
       if (current[key as keyof typeof current] == null) {
         (current as Record<string, any>)[key] = "";
@@ -226,13 +230,13 @@ const Home = () => {
         temp === null || temp === ""
           ? "-"
           : system === "metric"
-            ? +fToCelius(Number(temp))
+            ? +toCelsius(Number(temp))
             : +Number(temp).toFixed(0),
       feelslike:
         feelslike === null || feelslike === ""
           ? "-"
           : system === "metric"
-            ? +fToCelius(Number(feelslike))
+            ? +toCelsius(Number(feelslike))
             : +Number(feelslike).toFixed(0),
       wind:
         windspeed === null || windspeed === ""
@@ -281,9 +285,9 @@ const Home = () => {
       hicons.push(hour.conditions);
 
       if (system === "metric") {
-        htemps.push(+fToCelius(hour.temp));
+        htemps.push(+toCelsius(hour.temp));
       } else {
-        htemps.push(hour.temp);
+        htemps.push(Math.round(+hour.temp));
       }
     });
 
@@ -328,226 +332,256 @@ const Home = () => {
           />
         </div>
       </header>
+      {apiError ? (
+        <>
+          <div className="error">
+            <h3>Something went wrong.</h3>
+            <p>We Couldn't connect to the Server (API Error).Please try</p>
+            <p> again in a few moments</p>
+            <button onClick={() => window.location.reload()}>
+              <img src="/assets/images/icon-retry.svg" alt="retry" />
+              Retry
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <main className="main">
+            <section className="search-section">
+              <h1 className={`main-title ${bricolage.className}`}>
+                How’s the sky looking today?
+              </h1>
 
-      <main className="main">
-        <section className="search-section">
-          <h1 className={`main-title ${bricolage.className}`}>
-            How’s the sky looking today?
-          </h1>
+              <div className="search-box">
+                <div className="input-wrapper">
+                  <input
+                    placeholder="Search for a place.."
+                    ref={inputRef}
+                    className="search-input"
+                    value={query}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    autoComplete="off"
+                    onKeyDown={(e) => {
+                      if (!cities.length) return;
 
-          <div className="search-box">
-            <div className="input-wrapper">
-              <input
-                placeholder="Search for a place.."
-                ref={inputRef}
-                className="search-input"
-                value={query}
-                onChange={(e) => handleSearch(e.target.value)}
-                autoComplete="off"
-                onKeyDown={(e) => {
-                  if (!cities.length) return;
+                      if (e.code === "ArrowDown") {
+                        e.preventDefault();
+                        setCitySelectedIndex((prev) =>
+                          prev < cities.length - 1 ? prev + 1 : 0,
+                        );
+                      }
 
-                  if (e.code === "ArrowDown") {
-                    e.preventDefault();
-                    setCitySelectedIndex((prev) =>
-                      prev < cities.length - 1 ? prev + 1 : 0,
-                    );
-                  }
+                      if (e.code === "ArrowUp") {
+                        e.preventDefault();
+                        setCitySelectedIndex((prev) =>
+                          prev > 0 ? prev - 1 : cities.length - 1,
+                        );
+                      }
 
-                  if (e.code === "ArrowUp") {
-                    e.preventDefault();
-                    setCitySelectedIndex((prev) =>
-                      prev > 0 ? prev - 1 : cities.length - 1,
-                    );
-                  }
+                      if (e.code === "Enter" && citySelectedIndex >= 0) {
+                        e.preventDefault();
+                        const city = cities[citySelectedIndex];
 
-                  if (e.code === "Enter" && citySelectedIndex >= 0) {
-                    e.preventDefault();
-                    const city = cities[citySelectedIndex];
-
-                    setQuery(`${city.name}-${city.country}`);
-                    setLocation(
-                      `${city.name}, ${getCountryName(city.country)}`,
-                    );
-                    setCities([]);
-                    fetchWeatherData(city.name, city.lon, city.lat);
-                  }
-                }}
-              />
-              <img
-                src="/assets/images/icon-search.svg"
-                alt="Search"
-                className="searchIcon"
-              />
-              {loading && (
-                <div className="dropdown-city loading">
-                  <img src={"/assets/images/icon-loading.svg"} />
-                  Search in progress..
-                </div>
-              )}
-              {!loading && hasSearched && cities.length === 0 && (
-                <div className="notFound">
-                  <p>No Search results found!</p>
-                </div>
-              )}
-              {!loading && cities.length > 0 && (
-                <div className="dropdown-city" ref={dropCities}>
-                  {cities.map((city, index) => (
-                    <div
-                      key={index}
-                      className={`dropdown-item-city ${citySelectedIndex === index ? "active" : ""}`}
-                      onClick={() => {
                         setQuery(`${city.name}-${city.country}`);
                         setLocation(
                           `${city.name}, ${getCountryName(city.country)}`,
                         );
-
                         setCities([]);
                         fetchWeatherData(city.name, city.lon, city.lat);
-                        inputRef.current?.focus();
-                      }}
-                    >
-                      {city.name} - {city.state}, {city.country}.
+                      }
+                    }}
+                  />
+                  <img
+                    src="/assets/images/icon-search.svg"
+                    alt="Search"
+                    className="searchIcon"
+                  />
+                  {loading && (
+                    <div className="dropdown-city loading">
+                      <img src={"/assets/images/icon-loading.svg"} />
+                      Search in progress..
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <button
-              className="search-button"
-              onClick={() => {
-                fetchWeatherData(query.trim());
-              }}
-            >
-              Search
-            </button>
-          </div>
-        </section>
-        {showForcast && (
-          <div className="content-grid">
-            <div className="left-column">
-              <section className="current-weather">
-                <div className="weather-main loading">
-                  <div className="left-col">
-                    <h2 className="city-name">{location}</h2>
-                    <p className="date">{date}</p>
-                  </div>
-
-                  <h1 className="temperature">
-                    <img
-                      src={`/assets/images/icon-${today.icon}.webp`}
-                      alt="icon"
-                      style={{ height: "100px" }}
-                    />{" "}
-                    {today.temp}°
-                  </h1>
-                </div>
-
-                <div className="weather-details">
-                  {[
-                    ["Feels Like", `${today.feelslike}°`],
-                    ["Humidity", `${today.humidity} %`],
-                    [
-                      "Wind",
-                      `${today.wind} ${system === "metric" ? "kmh" : "mph"}`,
-                    ],
-                    [
-                      "Precipitation",
-                      `${today.precip} ${system === "metric" ? "mm" : "in"}`,
-                    ],
-                  ].map(([title, value]) => (
-                    <div key={title} className="detail-card">
-                      <p className="detail-title">{title}</p>
-                      <h3 className="detail-value">{value}</h3>
+                  )}
+                  {!loading && hasSearched && cities.length === 0 && (
+                    <div className="notFound">
+                      <p>No Search results found!</p>
                     </div>
-                  ))}
-                </div>
-              </section>
+                  )}
+                  {!loading && cities.length > 0 && (
+                    <div className="dropdown-city" ref={dropCities}>
+                      {cities.map((city, index) => (
+                        <div
+                          key={index}
+                          className={`dropdown-item-city ${citySelectedIndex === index ? "active" : ""}`}
+                          onClick={() => {
+                            setQuery(`${city.name}-${city.country}`);
+                            setLocation(
+                              `${city.name}, ${getCountryName(city.country)}`,
+                            );
 
-              <section className="daily-forecast">
-                <h3 className="section-title">Daily forecast</h3>
-
-                <div className="daily-cards">
-                  {weekD.map(([day, icon, temp]) => (
-                    <div key={day} className="daily-card">
-                      <p className="day">{day}</p>
-                      <p className="weather-icon">
-                        <img
-                          src={`/assets/images/icon-${icon}.webp`}
-                          alt="icon"
-                          style={{ height: "60px" }}
-                        />
-                      </p>
-                      <p className="day-temp">{temp}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </div>
-
-            <section className="hourly-forecast">
-              <div className="hourly-scroll">
-                <div className="hourly-header">
-                  <h3 className="section-title">
-                    <span>Hourly forecast</span>{" "}
-                    <span>
-                      <div className="dropdown-container" ref={dropdownRef}>
-                        <button
-                          className="dropdown-button"
-                          onClick={() => setDayIsOpen((prev) => !prev)}
+                            setCities([]);
+                            fetchWeatherData(city.name, city.lon, city.lat);
+                            inputRef.current?.focus();
+                          }}
                         >
-                          {selectedDay}
-                          <span
-                            className={`arrow ${isDayOpen ? "rotate" : ""}`}
-                          >
-                            <img
-                              src="/assets/images/icon-dropdown.svg"
-                              alt=""
-                            />
-                          </span>
-                        </button>
-
-                        {isDayOpen && (
-                          <div className="dropdown-menu">
-                            {hourWeekD.map((day) => (
-                              <button
-                                key={day}
-                                className={`dropdown-item ${selectedDay === day ? "active" : ""}`}
-                                onClick={() => {
-                                  setSelectedDay(day);
-                                  setDayIsOpen(false);
-                                }}
-                              >
-                                {day}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </span>
-                  </h3>
-                </div>
-
-                <div className="hourly-list">
-                  {hourForecast.map(([icon, time, temp]) => (
-                    <div key={time} className="hour-item">
-                      <div className="left">
-                        <img
-                          src={`/assets/images/icon-${icon}.webp`}
-                          alt="icon"
-                        />
-                        <span>{time}</span>
-                      </div>
-                      <p className="hour-temp">{temp}°</p>
+                          {city.name} - {city.state}, {city.country}.
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
+
+                <button
+                  className="search-button"
+                  onClick={() => {
+                    fetchWeatherData(query.trim());
+                  }}
+                >
+                  Search
+                </button>
               </div>
             </section>
-          </div>
-        )}
-      </main>
+            {showForcast && (
+              <div className="content-grid">
+                <div className="left-column">
+                  <section className="current-weather">
+                    <div
+                      className={`weather-main ${loadingForecast ? "loading" : ""}`}
+                    >
+                      {loadingForecast ? (
+                        <div className="center">
+                          <img
+                            src={`/assets/images/icon-loading.svg`}
+                            alt="Loading"
+                            style={{ height: "80px" }}
+                          />
+                          <span>Loading...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="left-col">
+                            <h2 className="city-name">{location}</h2>
+                            <p className="date">{date}</p>
+                          </div>
+
+                          <h1 className="temperature">
+                            <img
+                              src={`/assets/images/icon-${today.icon}.webp`}
+                              alt="icon"
+                              style={{ height: "100px" }}
+                            />{" "}
+                            {today.temp}°
+                          </h1>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="weather-details">
+                      {[
+                        ["Feels Like", `${today.feelslike}°`],
+                        ["Humidity", `${today.humidity} %`],
+                        [
+                          "Wind",
+                          `${today.wind} ${system === "metric" ? "kmh" : "mph"}`,
+                        ],
+                        [
+                          "Precipitation",
+                          `${today.precip} ${system === "metric" ? "mm" : "in"}`,
+                        ],
+                      ].map(([title, value]) => (
+                        <div key={title} className="detail-card">
+                          <p className="detail-title">{title}</p>
+                          <h3 className="detail-value">{value}</h3>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="daily-forecast">
+                    <h3 className="section-title">Daily forecast</h3>
+
+                    <div className="daily-cards">
+                      {weekD.map(([day, icon, temp]) => (
+                        <div key={day} className="daily-card">
+                          <p className="day">{day}</p>
+                          <p className="weather-icon">
+                            <img
+                              src={`/assets/images/icon-${icon}.webp`}
+                              alt="icon"
+                              style={{ height: "60px" }}
+                            />
+                          </p>
+                          <p className="day-temp">{temp}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+
+                <section className="hourly-forecast">
+                  <div className="hourly-scroll">
+                    <div className="hourly-header">
+                      <h3 className="section-title">
+                        <span>Hourly forecast</span>{" "}
+                        <span>
+                          <div className="dropdown-container" ref={dropdownRef}>
+                            <button
+                              className="dropdown-button"
+                              onClick={() => setDayIsOpen((prev) => !prev)}
+                            >
+                              {selectedDay}
+                              <span
+                                className={`arrow ${isDayOpen ? "rotate" : ""}`}
+                              >
+                                <img
+                                  src="/assets/images/icon-dropdown.svg"
+                                  alt=""
+                                />
+                              </span>
+                            </button>
+
+                            {isDayOpen && (
+                              <div className="dropdown-menu">
+                                {hourWeekD.map((day) => (
+                                  <button
+                                    key={day}
+                                    className={`dropdown-item ${selectedDay === day ? "active" : ""}`}
+                                    onClick={() => {
+                                      setSelectedDay(day);
+                                      setDayIsOpen(false);
+                                    }}
+                                  >
+                                    {day}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </span>
+                      </h3>
+                    </div>
+
+                    <div className="hourly-list">
+                      {hourForecast.map(([icon, time, temp]) => (
+                        <div key={time} className="hour-item">
+                          <div className="left">
+                            <img
+                              src={`/assets/images/icon-${icon}.webp`}
+                              alt="icon"
+                            />
+                            <span>{time}</span>
+                          </div>
+                          <p className="hour-temp">{temp}°</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
+          </main>
+        </>
+      )}
     </>
   );
 };

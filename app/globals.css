@@ -254,6 +254,28 @@ body {
 .weather-main.loading {
   background-color: var(--neutral-800);
   background-image: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.center {
+  position: relative;
+}
+
+.center img {
+  animation: spin 1.2s linear infinite;
+  z-index: 1;
+}
+.center span {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font: var(--text-4);
+  color: var(--neutral-300);
+  z-index: 5;
+  background-color: var(--neutral-800);
+  padding-bottom: 30px;
 }
 
 .left-col {
@@ -596,7 +618,32 @@ body {
   background: rgba(255, 255, 255, 0.1);
   margin: 16px 0;
 }
-
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 60vh;
+}
+.error h3 {
+  font: var(--text-2);
+}
+.error p {
+  font: var(--text-5);
+}
+.error button {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--neutral-800);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font: var(--text-7);
+  cursor: pointer;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -636,7 +683,7 @@ body {
   }
   .units-btn {
     width: 119px;
-    padding: 8px 12px;
+    padding: 12px 10px;
   }
   .main {
     margin: 24px auto;

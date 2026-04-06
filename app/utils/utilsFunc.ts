@@ -75,13 +75,6 @@ export function weekForecast(
   return week;
 }
 
-export function fToCelius(fahrenheit: number | null | string): number | string {
-  if (fahrenheit === null) {
-    return "-";
-  } else {
-    return Number((((+fahrenheit - 32) * 5) / 9).toFixed(0));
-  }
-}
 export function getDate(date: string): string {
   const fdate = new Date(date);
 
