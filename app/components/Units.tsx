@@ -77,7 +77,10 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
                 Celsius (°C)
                 {system === "metric" && (
                   <span>
-                    <img src="/assets/images/icon-checkmark.svg" alt="" />
+                    <img
+                      src="/assets/images/icon-checkmark.svg"
+                      alt="checkmark"
+                    />
                   </span>
                 )}
               </div>
@@ -100,7 +103,10 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
                 Fahrenheit (°F)
                 {system === "imperial" && (
                   <span>
-                    <img src="/assets/images/icon-checkmark.svg" alt="" />
+                    <img
+                      src="/assets/images/icon-checkmark.svg"
+                      alt="checkmark"
+                    />
                   </span>
                 )}
               </div>
@@ -128,6 +134,14 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
                 }}
               >
                 km/h
+                {system === "metric" && (
+                  <span>
+                    <img
+                      src="/assets/images/icon-checkmark.svg"
+                      alt="checkmark"
+                    />
+                  </span>
+                )}
               </div>
 
               <div
@@ -146,6 +160,14 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
                 }}
               >
                 mph
+                {system === "imperial" && (
+                  <span>
+                    <img
+                      src="/assets/images/icon-checkmark.svg"
+                      alt="checkmark"
+                    />
+                  </span>
+                )}
               </div>
             </div>
 
@@ -171,6 +193,14 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
                 }}
               >
                 Millimeters (mm)
+                {system === "metric" && (
+                  <span>
+                    <img
+                      src="/assets/images/icon-checkmark.svg"
+                      alt="checkmark"
+                    />
+                  </span>
+                )}
               </div>
 
               <div
@@ -189,6 +219,14 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
                 }}
               >
                 Inches (in)
+                {system === "imperial" && (
+                  <span>
+                    <img
+                      src="/assets/images/icon-checkmark.svg"
+                      alt="checkmark"
+                    />
+                  </span>
+                )}
               </div>
             </div>
           </div>
