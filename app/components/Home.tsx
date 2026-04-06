@@ -322,7 +322,7 @@ const Home = () => {
     <>
       <header className="header">
         <div className="header-container">
-          <img className="logo" src="/assets/images/logo.svg" />
+          <img className="logo" src="/assets/images/logo.svg" alt="logo" />
           <Units
             unitOpen={unitOpen}
             setUnitOpen={setUnitOpen}
