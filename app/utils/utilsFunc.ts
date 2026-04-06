@@ -99,14 +99,14 @@ export function getDate(date: string): string {
   return formatted;
 }
 export const toCelsius = (f: number) => {
-  return (((+f - 32) * 5) / 9).toFixed(0);
+  return Math.round(((f - 32) * 5) / 9);
 };
 export const toKmh = (mph: number): number => {
-  return +(+mph * 1.60934).toFixed(0);
+  return Math.round(mph * 1.60934);
 };
 
 export const toMm = (inch: number): number => {
-  return Number((inch * 25.4).toFixed(0));
+  return Math.round(inch * 25.4);
 };
 export function normalize(str: string) {
   return str
