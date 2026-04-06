@@ -741,15 +741,11 @@ body {
   .weather-details {
     grid-template-columns: auto auto auto auto;
   }
-
-  .day-temp {
-    /* transform: translateX(-7px); */
-  }
 }
 /* ========================= */
 /* DESKTOP ≥1024px */
 /* ========================= */
-@media (min-width: 1216px) {
+@media (min-width: 1210px) {
   .content-grid {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
@@ -786,5 +782,9 @@ body {
   }
   .detail-card {
     width: 182px;
+  }
+  .search-input,
+  .input-wrapper {
+    width: 520px;
   }
 }
