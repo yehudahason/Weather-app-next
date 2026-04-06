@@ -171,7 +171,7 @@ body {
   left: 0;
   width: min(420px, 100%);
   margin-top: 8px;
-  background: #403f3f;
+  background: var(--neutral-700);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
@@ -205,10 +205,10 @@ body {
   cursor: pointer;
 }
 .dropdown-item-city.active {
-  background: #2b2a2a;
+  background: var(--neutral-800);
 }
 .dropdown-item-city:hover {
-  background: #3a3a3a;
+  background: var(--neutral-800);
   border-radius: 6px;
 }
 
@@ -785,7 +785,6 @@ body {
   }
   .weather-details {
     grid-template-columns: auto auto auto auto;
-    justify-content: normal;
   }
   .detail-card {
     width: 182px;
