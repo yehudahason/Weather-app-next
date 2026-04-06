@@ -16,7 +16,7 @@ Build a weather app using the [Weather API](https://www.visualcrossing.com/) and
 
 ### Links
 
-- Live Site URL: [Vercel](https://weather-app-yehudahason.vercel.app/)
+- Live Site URL : [Vercel](https://weather-app-yehudahason.vercel.app/)
 
 ### Built with
 
