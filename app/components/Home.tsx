@@ -351,16 +351,31 @@ const Home = () => {
               <h1 className={`main-title ${bricolage.className}`}>
                 How’s the sky looking today?
               </h1>
-
               <div className="search-box">
                 <div className="input-wrapper">
+                  {/* ✅ Accessible label */}
+                  <label htmlFor="city-search" className="sr-only">
+                    Search for a place
+                  </label>
+
                   <input
+                    id="city-search"
                     placeholder="Search for a place.."
                     ref={inputRef}
                     className="search-input"
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
                     autoComplete="off"
+                    /* ✅ Accessibility improvements */
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={cities.length > 0}
+                    aria-controls="city-listbox"
+                    aria-activedescendant={
+                      citySelectedIndex >= 0
+                        ? `city-${citySelectedIndex}`
+                        : undefined
+                    }
                     onKeyDown={(e) => {
                       if (!cities.length) return;
 
@@ -391,28 +406,43 @@ const Home = () => {
                       }
                     }}
                   />
+
+                  {/* decorative icon */}
                   <img
                     src="/assets/images/icon-search.svg"
-                    alt="Search"
+                    alt=""
                     className="searchIcon"
                   />
+
                   {loading && (
                     <div className="dropdown-city loading">
-                      <img src={"/assets/images/icon-loading.svg"} />
+                      <img src={"/assets/images/icon-loading.svg"} alt="" />
                       Search in progress..
                     </div>
                   )}
+
                   {!loading && hasSearched && cities.length === 0 && (
                     <div className="notFound">
                       <p>No Search results found!</p>
                     </div>
                   )}
+
                   {!loading && cities.length > 0 && (
-                    <div className="dropdown-city" ref={dropCities}>
+                    <div
+                      className="dropdown-city"
+                      ref={dropCities}
+                      role="listbox"
+                      id="city-listbox"
+                    >
                       {cities.map((city, index) => (
                         <div
+                          id={`city-${index}`}
+                          role="option"
+                          aria-selected={citySelectedIndex === index}
                           key={index}
-                          className={`dropdown-item-city ${citySelectedIndex === index ? "active" : ""}`}
+                          className={`dropdown-item-city ${
+                            citySelectedIndex === index ? "active" : ""
+                          }`}
                           onClick={() => {
                             setQuery(`${city.name}-${city.country}`);
                             setLocation(

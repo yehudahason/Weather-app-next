@@ -1,7 +1,7 @@
 import cities from "@/public/city.list.json";
 import { NextResponse } from "next/server";
 import { City } from "@/app/types/types";
-import { normalize, toEnglish } from "@/app/utils/utilsFunc";
+import { normalize } from "@/app/utils/utilsFunc";
 
 // ✅ normalize dataset too
 const indexedCities: City[] = (cities as City[]).map((c) => ({

@@ -1,4 +1,4 @@
-import { useState, forwardRef } from "react";
+import { forwardRef } from "react";
 import { Settings } from "lucide-react";
 
 interface UnitsProps {
@@ -13,42 +13,46 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
     const SYSTEMS = {
       metric: {
         label: "Switch to Imperial",
-        temperature: "Celsius (°C)",
-        wind: "km/h",
-        precipitation: "Millimeters (mm)",
       },
       imperial: {
         label: "Switch to Metric",
-        temperature: "Fahrenheit (°F)",
-        wind: "mph",
-        precipitation: "Inches (in)",
       },
-    };
-
-    const OPTIONS = {
-      temperature: ["Celsius (°C)", "Fahrenheit (°F)"],
-      wind: ["km/h", "mph"],
-      precipitation: ["Millimeters (mm)", "Inches (in)"],
     };
 
     const toggle = () => setSystem(system === "metric" ? "imperial" : "metric");
 
-    const active = SYSTEMS[system];
-
     return (
       <div className="units" ref={ref}>
-        {/* Button */}
-        <button className="units-btn" onClick={() => setUnitOpen(!unitOpen)}>
-          <Settings size={16} />
+        {/* ✅ Button (ARIA added, no design change) */}
+        <button
+          className="units-btn"
+          onClick={() => setUnitOpen(!unitOpen)}
+          aria-expanded={unitOpen}
+          aria-controls="units-menu"
+          aria-haspopup="menu"
+        >
+          <Settings size={16} aria-hidden="true" />
           Units
           <span className="caret">▾</span>
         </button>
 
         {/* Dropdown */}
         {unitOpen && (
-          <div className="units-panel">
-            <div className="units-header" onClick={toggle}>
-              {active.label}
+          <div className="units-panel" id="units-menu" role="menu">
+            {/* Header (still looks same, now accessible) */}
+            <div
+              className="units-header"
+              role="menuitem"
+              tabIndex={0}
+              onClick={toggle}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  toggle();
+                }
+              }}
+            >
+              {SYSTEMS[system].label}
             </div>
 
             {/* Temperature */}
@@ -56,23 +60,47 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
               <div className="units-label">Temperature</div>
 
               <div
-                className={`units-option ${system === "metric" ? "active" : ""}`}
+                role="menuitemradio"
+                aria-checked={system === "metric"}
+                tabIndex={0}
+                className={`units-option ${
+                  system === "metric" ? "active" : ""
+                }`}
+                onClick={() => setSystem("metric")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSystem("metric");
+                  }
+                }}
               >
-                {OPTIONS.temperature[0]}
+                Celsius (°C)
                 {system === "metric" && (
                   <span>
-                    <img src={`/assets/images/icon-checkmark.svg`} />
+                    <img src="/assets/images/icon-checkmark.svg" alt="" />
                   </span>
                 )}
               </div>
 
               <div
-                className={`units-option ${system === "imperial" ? "active" : ""}`}
+                role="menuitemradio"
+                aria-checked={system === "imperial"}
+                tabIndex={0}
+                className={`units-option ${
+                  system === "imperial" ? "active" : ""
+                }`}
+                onClick={() => setSystem("imperial")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSystem("imperial");
+                  }
+                }}
               >
-                {OPTIONS.temperature[1]}
+                Fahrenheit (°F)
                 {system === "imperial" && (
                   <span>
-                    <img src={`/assets/images/icon-checkmark.svg`} />
+                    <img src="/assets/images/icon-checkmark.svg" alt="" />
                   </span>
                 )}
               </div>
@@ -85,54 +113,82 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
               <div className="units-label">Wind Speed</div>
 
               <div
-                className={`units-option ${system === "metric" ? "active" : ""}`}
+                role="menuitemradio"
+                aria-checked={system === "metric"}
+                tabIndex={0}
+                className={`units-option ${
+                  system === "metric" ? "active" : ""
+                }`}
+                onClick={() => setSystem("metric")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSystem("metric");
+                  }
+                }}
               >
                 km/h
-                {system === "metric" && (
-                  <span>
-                    <img src={`/assets/images/icon-checkmark.svg`} />
-                  </span>
-                )}
               </div>
 
               <div
-                className={`units-option ${system === "imperial" ? "active" : ""}`}
+                role="menuitemradio"
+                aria-checked={system === "imperial"}
+                tabIndex={0}
+                className={`units-option ${
+                  system === "imperial" ? "active" : ""
+                }`}
+                onClick={() => setSystem("imperial")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSystem("imperial");
+                  }
+                }}
               >
                 mph
-                {system === "imperial" && (
-                  <span>
-                    <img src={`/assets/images/icon-checkmark.svg`} />
-                  </span>
-                )}
               </div>
             </div>
+
             <div className="units-divider" />
 
             {/* Precipitation */}
-
             <div className="units-section">
               <div className="units-label">Precipitation</div>
 
               <div
-                className={`units-option ${system === "metric" ? "active" : ""}`}
+                role="menuitemradio"
+                aria-checked={system === "metric"}
+                tabIndex={0}
+                className={`units-option ${
+                  system === "metric" ? "active" : ""
+                }`}
+                onClick={() => setSystem("metric")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSystem("metric");
+                  }
+                }}
               >
                 Millimeters (mm)
-                {system === "metric" && (
-                  <span>
-                    <img src={`/assets/images/icon-checkmark.svg`} />
-                  </span>
-                )}
               </div>
 
               <div
-                className={`units-option ${system === "imperial" ? "active" : ""}`}
+                role="menuitemradio"
+                aria-checked={system === "imperial"}
+                tabIndex={0}
+                className={`units-option ${
+                  system === "imperial" ? "active" : ""
+                }`}
+                onClick={() => setSystem("imperial")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSystem("imperial");
+                  }
+                }}
               >
                 Inches (in)
-                {system === "imperial" && (
-                  <span>
-                    <img src={`/assets/images/icon-checkmark.svg`} />
-                  </span>
-                )}
               </div>
             </div>
           </div>
