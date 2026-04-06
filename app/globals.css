@@ -256,7 +256,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 286px;
-  width: 95%;
+  width: 90%;
   justify-content: center;
   align-items: center;
   gap: 24px;
@@ -323,6 +323,7 @@ body {
   gap: 21px;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .detail-card {
@@ -662,7 +663,9 @@ body {
     font: var(--text-1);
   }
   .weather-details {
-    width: 100%;
+    display: grid;
+    width: 90%;
+    grid-template-columns: repeat(2, 1fr);
   }
   .daily-cards {
     grid-template-columns: auto auto auto;
@@ -671,7 +674,7 @@ body {
     width: 100px;
   }
   .detail-card {
-    width: 160px;
+    width: 100%;
     padding: 20px;
   }
   .detail-title {
