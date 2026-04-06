@@ -582,6 +582,7 @@ const Home = () => {
                                       setSelectedDay(day);
                                       setDayIsOpen(false);
                                     }}
+                                    type="button"
                                   >
                                     {day}
                                   </button>

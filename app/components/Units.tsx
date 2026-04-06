@@ -30,6 +30,7 @@ const Units = forwardRef<HTMLDivElement, UnitsProps>(
           aria-expanded={unitOpen}
           aria-controls="units-menu"
           aria-haspopup="menu"
+          type="button"
         >
           <Settings size={16} aria-hidden="true" />
           Units

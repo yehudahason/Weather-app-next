@@ -14,15 +14,6 @@ export async function getWeather(lat: number, lon: number) {
   return res.json();
 }
 
-export async function getCity(city: string) {
-  const res = await fetch(
-    `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${GEO}`,
-  );
-  const data = await res.json();
-  console.log(data);
-  // getWeather(city);
-}
-
 export function getCountryName(code: string) {
   const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
   return regionNames.of(code);
