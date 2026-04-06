@@ -289,9 +289,9 @@ body {
 }
 
 .date {
-  opacity: 0.8;
   margin: 8px 0 30px 0;
   font: var(--text-6);
+  color: white;
 }
 
 .temperature {
