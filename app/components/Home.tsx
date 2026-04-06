@@ -196,8 +196,8 @@ const Home = () => {
         maxTemps.push(+toCelsius(Number(day.tempmax)));
         minTemps.push(+toCelsius(Number(day.tempmin)));
       } else {
-        maxTemps.push(+day.tempmax);
-        minTemps.push(+day.tempmin);
+        maxTemps.push(Math.round(+day.tempmax));
+        minTemps.push(Math.round(+day.tempmin));
       }
     });
 
