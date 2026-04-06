@@ -593,6 +593,11 @@ body {
   margin: 16px 0;
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 @media (min-width: 372px) {
   .temperature {
     font: var(--text-1);
