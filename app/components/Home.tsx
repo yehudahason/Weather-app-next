@@ -338,7 +338,7 @@ const Home = () => {
             <h3>Something went wrong.</h3>
             <p>We Couldn't connect to the Server (API Error).Please try</p>
             <p> again in a few moments</p>
-            <button onClick={() => window.location.reload()}>
+            <button onClick={() => window.location.reload()} type="button">
               <img src="/assets/images/icon-retry.svg" alt="retry" />
               Retry
             </button>
@@ -436,6 +436,7 @@ const Home = () => {
                   onClick={() => {
                     fetchWeatherData(query.trim());
                   }}
+                  type="button"
                 >
                   Search
                 </button>
@@ -528,6 +529,7 @@ const Home = () => {
                             <button
                               className="dropdown-button"
                               onClick={() => setDayIsOpen((prev) => !prev)}
+                              type="button"
                             >
                               {selectedDay}
                               <span

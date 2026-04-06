@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
@@ -12,5 +13,5 @@ export async function GET(req: Request) {
 
   const data = await res.json();
 
-  return Response.json(data);
+  return NextResponse.json(data);
 }
