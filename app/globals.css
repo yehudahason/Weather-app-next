@@ -50,7 +50,8 @@ body {
 /* ===== HEADER ===== */
 .header {
   width: 100%;
-  padding: 16px 20px;
+  margin: 16px 16px 48px 16px;
+  padding: 0 16px;
 }
 
 .header-container {
@@ -78,8 +79,7 @@ body {
 /* ===== MAIN ===== */
 .main {
   max-width: 1216px;
-  margin: 0 auto;
-  padding: 20px 16px;
+  margin: 16px auto;
   display: grid;
   place-items: center;
 }
@@ -182,13 +182,12 @@ body {
 .notFound {
   position: absolute;
   top: 300%;
-  left: 0;
+  right: 30px;
   width: min(420px, 100%);
   background-color: transparent;
   color: white;
-  font-weight: bold;
+  font: var(--text-5);
   text-align: right;
-  padding-right: 40px;
 }
 .dropdown-item-city {
   padding: 10px 8px;
@@ -206,7 +205,7 @@ body {
 .main-title {
   font: var(--text-2);
   font-weight: 700;
-  margin-bottom: 30px;
+  margin-bottom: 64px;
 }
 
 /* ===== GRID LAYOUT ===== */
@@ -530,14 +529,14 @@ body {
   align-items: center;
   gap: 8px;
   font: var(--text-7);
-
+  text-align: center;
   background: var(--neutral-800);
   color: white;
 
-  padding: 10px 14px;
+  padding: 8px;
   border-radius: 10px;
   border: none;
-
+  width: 89px;
   cursor: pointer;
 }
 
@@ -635,8 +634,21 @@ body {
   .search-box {
     flex-direction: row;
   }
+  .units-btn {
+    width: 119px;
+    padding: 8px 12px;
+  }
+  .main {
+    margin: 24px auto;
+  }
+  .header {
+    margin: 24px auto;
+  }
   .notFound {
     top: 140%;
+    left: auto;
+    right: 40px;
+    font: var(--text-4);
   }
   .search-button {
     width: 114px;
@@ -664,9 +676,6 @@ body {
   .weather-main {
     background-image: url("/assets/images/bg-today-large.svg");
     width: 720px;
-  }
-  .main {
-    padding: 40px 24px;
   }
   .daily-cards {
     grid-template-columns: auto auto auto auto auto auto auto;
