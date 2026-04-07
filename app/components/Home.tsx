@@ -27,6 +27,7 @@ import { bricolage } from "../fonts";
 const Home = () => {
   const [system, setSystem] = useState<UnitSystem>("metric");
   const [selectedDay, setSelectedDay] = useState<string | "">("");
+  const [firstDay, setFirstDay] = useState<string | "">("");
   const [isDayOpen, setDayIsOpen] = useState<boolean>(false);
   const [unitOpen, setUnitOpen] = useState<boolean>(false);
   const [citySelectedIndex, setCitySelectedIndex] = useState<number>(-1);
@@ -44,14 +45,14 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false); //
   const [loadingForecast, setLoadingForecast] = useState<boolean>(false); //
   const [apiError, setApiError] = useState<boolean>(false);
-  const [showForcast, setShowForcast] = useState<boolean>(false); //
+  const [showForecast, setShowForecast] = useState<boolean>(false); //
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const abortRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
   const weatherRequestRef = useRef(0);
   const hourWeekD = useMemo(
-    () => getLiteralDays(week.indexOf(selectedDay)),
-    [forecast],
+    () => getLiteralDays(week.indexOf(firstDay)),
+    [firstDay],
   );
   const handleSearch = async (value: string) => {
     setQuery(value);
@@ -76,7 +77,7 @@ const Home = () => {
     }
 
     setLoading(true);
-    setShowForcast(false);
+    setShowForecast(false);
     setHasSearched(true);
 
     try {
@@ -106,6 +107,7 @@ const Home = () => {
     lon: number | null = null,
     lat: number | null = null,
   ) => {
+    setLoadingForecast(true);
     const requestId = ++weatherRequestRef.current;
     try {
       let resolvedLon = lon;
@@ -121,9 +123,10 @@ const Home = () => {
         ) {
           console.log("City not found");
           setHasSearched(true);
+          setLoadingForecast(false);
           return;
         }
-        setLoadingForecast(true);
+
         // ✅ EXACT MATCH ONLY
         const normalizedQuery = normalize(city);
         const exactCity = resCity.find(
@@ -135,6 +138,7 @@ const Home = () => {
           setCities([]);
 
           setHasSearched(true);
+          setLoadingForecast(false);
           return;
         }
         setHasSearched(false);
@@ -144,7 +148,7 @@ const Home = () => {
         setLocation(`${exactCity.name}, ${getCountryName(exactCity.country)}`);
       }
       setHasSearched(false);
-      setShowForcast(true);
+      setShowForecast(true);
 
       const res = await fetch(
         `/api/weather?lat=${resolvedLat}&lon=${resolvedLon}`,
@@ -153,17 +157,19 @@ const Home = () => {
       if (!res.ok) {
         console.log(`Weather request failed with status ${res.status}`);
         setApiError(true);
+        setLoadingForecast(false);
         return;
       }
-      setLoadingForecast(false);
       const data: ForecastResponse = await res.json();
       console.log(data);
       if (requestId !== weatherRequestRef.current) return;
+      setLoadingForecast(false);
       if (data.days?.length) {
         const dayName = new Date(data.days[0].datetime).toLocaleDateString(
           "en-US",
           { weekday: "long" },
         );
+        setFirstDay(dayName);
         setSelectedDay(dayName);
         setDate(getDate(data.days[0].datetime));
       }
@@ -172,6 +178,7 @@ const Home = () => {
       setQuery(city);
     } catch (error) {
       console.error("Failed to fetch weather data:", error);
+      setLoadingForecast(false);
     }
   };
   const weekD = useMemo(() => {
@@ -201,8 +208,8 @@ const Home = () => {
       }
     });
 
-    return weekForecast(icons, minTemps, maxTemps, week.indexOf(selectedDay));
-  }, [forecast.days, system]);
+    return weekForecast(icons, minTemps, maxTemps, week.indexOf(firstDay));
+  }, [forecast.days, system, firstDay]);
 
   const today: TodayForecast = useMemo(() => {
     const defaultToday: TodayForecast = {
@@ -472,7 +479,7 @@ const Home = () => {
                 </button>
               </div>
             </section>
-            {showForcast && (
+            {showForecast && (
               <div className="content-grid">
                 <div className="left-column">
                   <section className="current-weather">
