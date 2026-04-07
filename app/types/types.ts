@@ -29,6 +29,11 @@ export type ForecastDay = {
   tempmax: number | "";
   tempmin: number | "";
   conditions: string;
+  temp: number | "";
+  feelslike: number | "";
+  windspeed: number | "";
+  humidity: number | "";
+  precip: number | "";
 };
 
 export const week = [

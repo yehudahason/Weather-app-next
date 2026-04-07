@@ -108,7 +108,7 @@ body {
 
 .input-wrapper {
   position: relative;
-  width: min(520px, 90%);
+  width: min(520px, 94%);
 }
 .search-input {
   width: min(520px, 100%);
@@ -151,7 +151,7 @@ body {
   height: 56px;
   font: var(--text-5);
   background: var(--blue-500);
-  width: 90%;
+  width: 94%;
   color: var(--neutral-0);
   cursor: pointer;
   max-width: 520px;
@@ -257,7 +257,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 286px;
-  width: 90%;
+  width: 94%;
   justify-content: center;
   align-items: center;
   gap: 24px;
@@ -321,7 +321,7 @@ body {
 .weather-details {
   display: grid;
   display: grid;
-  width: 90%;
+  width: 94%;
   grid-template-columns: repeat(2, 1fr);
   gap: 21px;
   justify-content: center;

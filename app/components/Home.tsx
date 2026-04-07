@@ -39,7 +39,7 @@ const Home = () => {
 
   const [query, setQuery] = useState<string>("");
   const [location, setLocation] = useState<string>("Berlin, Germany");
-  const [date, setDate] = useState<string>("2025");
+  const [date, setDate] = useState<string>("");
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
   const [loading, setLoading] = useState<boolean>(false); //
@@ -221,10 +221,10 @@ const Home = () => {
       icon: "blank",
     };
 
-    if (!forecast.currentConditions) {
+    if (!forecast.currentConditions || !forecast.days?.length) {
       return defaultToday;
     }
-    const current = { ...forecast.currentConditions };
+    const current = { ...forecast.days[0] };
     Object.keys(current).forEach((key) => {
       if (current[key as keyof typeof current] == null) {
         (current as Record<string, any>)[key] = "";
@@ -260,7 +260,7 @@ const Home = () => {
           ? "-"
           : system === "metric"
             ? +toMm(Number(precip))
-            : +Number(precip).toFixed(0),
+            : +Number(precip).toFixed(3),
       icon: conditions ? getIcon(conditions) : "blank",
     };
   }, [forecast.currentConditions, system]);
