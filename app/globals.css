@@ -45,6 +45,9 @@ body {
   background: var(--neutral-900);
   color: #ffffff;
   /* font-family: "DM Sans"; */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===== HEADER ===== */
@@ -81,7 +84,8 @@ body {
   max-width: 1216px;
   margin: 16px auto;
   display: grid;
-  place-items: center;
+  justify-content: center;
+  flex: 1;
 }
 
 /* ===== SEARCH ===== */

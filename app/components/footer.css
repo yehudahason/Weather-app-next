@@ -1,0 +1,67 @@
+.attribution {
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem;
+
+  color: burlywood;
+}
+
+/* Links */
+.attribution a {
+  margin: 0 0.25rem;
+  text-decoration: none;
+  font-weight: 500;
+  color: rgb(230, 82, 28);
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.attribution a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Separator dot */
+.separator {
+  margin: 0 0.5rem;
+  opacity: 0.6;
+}
+
+/* Year flicker effect */
+.year {
+  margin-left: 0.5rem;
+  font-weight: 600;
+  display: inline-block;
+  animation: flicker 1s step-end infinite;
+  color: rgb(219, 89, 42);
+}
+
+/* Flicker animation */
+@keyframes flicker {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .attribution {
+    background-color: #111827;
+    color: #e5e7eb;
+  }
+
+  .attribution a {
+    color: #60a5fa;
+  }
+
+  .separator {
+    opacity: 0.5;
+  }
+}
