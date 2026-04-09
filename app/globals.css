@@ -109,7 +109,18 @@ body {
   display: flex;
   gap: 8px;
 }
-
+.nf {
+  margin: 100px auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  color: white;
+  text-align: center;
+  gap: 25px;
+}
+.nf a {
+  color: burlywood;
+}
 .input-wrapper {
   position: relative;
   width: min(520px, 94%);
