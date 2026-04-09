@@ -1,18 +1,18 @@
 export const weatherIconMap = {
-  rain: ["rain", "showers", "heavy rain"],
   snow: ["snow", "light snow", "heavy snow", "snow showers"],
+  rain: ["rain", "showers", "heavy rain"],
+
+  fog: ["fog", "mist", "haze", "smoke"],
   rainpartly: ["rain, partially cloudy"],
-  sunny: ["clear", "clear-day", "sunny"],
+  cloudy: ["overcast", "cloudy", "mostly cloudy"],
   partlyCloudy: [
     "partially cloudy",
     "partly cloudy",
     "mostly sunny",
     "scattered clouds",
   ],
+  sunny: ["clear", "clear-day", "sunny"],
   blank: ["blank"],
-
-  cloudy: ["overcast", "cloudy", "mostly cloudy"],
-  fog: ["fog", "mist", "haze", "smoke"],
   drizzle: ["drizzle", "light rain", "light showers"],
   thunder: ["thunderstorm", "storm", "thundershowers"],
 };
