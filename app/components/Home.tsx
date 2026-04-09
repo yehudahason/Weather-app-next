@@ -260,7 +260,7 @@ const Home = () => {
           ? "-"
           : system === "metric"
             ? +toMm(Number(precip))
-            : +Number(precip).toFixed(2),
+            : +Number(precip).toFixed(3),
       icon: conditions ? getIcon(conditions) : "blank",
     };
   }, [forecast.currentConditions, system]);

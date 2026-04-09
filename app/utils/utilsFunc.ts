@@ -99,7 +99,7 @@ export const toKmh = (mph: number): number => {
 };
 
 export const toMm = (inch: number): number => {
-  return Math.round(inch * 25.4);
+  return +(inch * 25.4).toFixed(1);
 };
 export function normalize(str: string) {
   return str
