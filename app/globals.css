@@ -48,6 +48,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: scroll;
 }
 
 /* ===== HEADER ===== */
@@ -444,6 +445,21 @@ body {
 }
 
 /* scrollbar */
+body::-webkit-scrollbar {
+  width: 2px;
+}
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+/* scrollbar */
+
 .hourly-scroll::-webkit-scrollbar {
   width: 3px;
 }

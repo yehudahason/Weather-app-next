@@ -89,6 +89,7 @@ const Home = () => {
       if (!results || requestId !== requestIdRef.current) return;
 
       setCities(results);
+
       setCitySelectedIndex(results.length > 0 ? 0 : -1);
     } catch (error) {
       if (requestId !== requestIdRef.current) return;
@@ -107,6 +108,7 @@ const Home = () => {
     lon: number | null = null,
     lat: number | null = null,
   ) => {
+    setHasSearched(false);
     setLoadingForecast(true);
     const requestId = ++weatherRequestRef.current;
     try {
@@ -315,6 +317,7 @@ const Home = () => {
 
       if (dropCities.current && !dropCities.current.contains(target)) {
         setCities([]);
+        setHasSearched(false);
       }
     };
 
