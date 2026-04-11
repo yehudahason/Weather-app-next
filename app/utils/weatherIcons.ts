@@ -1,5 +1,6 @@
 export const weatherIconMap = {
   snow: ["snow", "light snow", "heavy snow", "snow showers"],
+  drizzle: ["drizzle", "light rain", "light showers"],
   rain: ["rain", "showers", "heavy rain"],
 
   fog: ["fog", "mist", "haze", "smoke"],
@@ -13,7 +14,6 @@ export const weatherIconMap = {
   cloudy: ["overcast", "cloudy", "mostly cloudy"],
   sunny: ["clear", "clear-day", "sunny"],
   blank: ["blank"],
-  drizzle: ["drizzle", "light rain", "light showers"],
   thunder: ["thunderstorm", "storm", "thundershowers"],
 };
 
