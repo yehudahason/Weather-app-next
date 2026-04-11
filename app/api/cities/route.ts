@@ -42,5 +42,5 @@ export async function GET(req: Request) {
     return a.city.name.localeCompare(b.city.name);
   });
 
-  return NextResponse.json(pool.slice(0, 13).map((r) => r.city));
+  return NextResponse.json(pool.slice(0, 10).map((r) => r.city));
 }

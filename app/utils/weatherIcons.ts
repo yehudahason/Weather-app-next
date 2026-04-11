@@ -4,13 +4,13 @@ export const weatherIconMap = {
 
   fog: ["fog", "mist", "haze", "smoke"],
   rainpartly: ["rain, partially cloudy"],
-  cloudy: ["overcast", "cloudy", "mostly cloudy"],
   partlyCloudy: [
     "partially cloudy",
     "partly cloudy",
     "mostly sunny",
     "scattered clouds",
   ],
+  cloudy: ["overcast", "cloudy", "mostly cloudy"],
   sunny: ["clear", "clear-day", "sunny"],
   blank: ["blank"],
   drizzle: ["drizzle", "light rain", "light showers"],
@@ -18,10 +18,18 @@ export const weatherIconMap = {
 };
 
 export function getIcon(condition?: string) {
-  if (!condition) return "sunny"; // or "sunny" fallback
+  if (!condition) return "sunny";
 
   const c = condition.toLowerCase();
 
+  // 1. Exact match first
+  for (const [icon, values] of Object.entries(weatherIconMap)) {
+    if (values.includes(c)) {
+      return icon;
+    }
+  }
+
+  // 2. Then fallback to includes
   for (const [icon, values] of Object.entries(weatherIconMap)) {
     if (values.some((v) => c.includes(v))) {
       return icon;
