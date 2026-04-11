@@ -403,7 +403,7 @@ const Home = () => {
                         );
                       }
 
-                      if (e.code === "Enter" && citySelectedIndex >= 0) {
+                      if (e.key === "Enter" && citySelectedIndex >= 0) {
                         e.preventDefault();
                         const city = cities[citySelectedIndex];
 
