@@ -654,6 +654,9 @@ body::-webkit-scrollbar-thumb:hover {
 
   font: var(--text-7);
 }
+.units-option:hover {
+  cursor: pointer;
+}
 .units-option.active {
   background: rgba(255, 255, 255, 0.08);
 }
