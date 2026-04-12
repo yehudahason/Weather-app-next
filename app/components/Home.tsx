@@ -372,6 +372,7 @@ const Home = () => {
                     id="city-search"
                     placeholder="Search for a place.."
                     ref={inputRef}
+                    type="text"
                     className="search-input"
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
