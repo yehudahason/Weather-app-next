@@ -11,7 +11,8 @@ export async function GET(req: Request) {
     `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}?key=${apiKey}`,
   );
 
-  const data = await res.json();
-
-  return NextResponse.json(data);
+  if (res.ok) {
+    const data = await res.json();
+    return NextResponse.json(data);
+  } else return NextResponse.json({});
 }
