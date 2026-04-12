@@ -16,6 +16,9 @@ export function getDays(today: number): number[] {
 }
 
 export function getLiteralDays(today: number): string[] {
+  if (today < 0) {
+    today = 0;
+  }
   let days = [];
   for (let i = 0; i < 7; i++) {
     days.push(week[(today + i) % 7]);
