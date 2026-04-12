@@ -5,6 +5,9 @@ import { week } from "../types/types";
 export const shortWeekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function getDays(today: number): number[] {
+  if (today < 0) {
+    today = 0;
+  }
   let days = [];
   for (let i = 0; i < 7; i++) {
     days.push((today + i) % 7);
