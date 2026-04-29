@@ -322,7 +322,7 @@ const Home = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
+    searchCities("Berlin");
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
