@@ -86,7 +86,6 @@ body {
   margin: 16px auto;
   display: grid;
   justify-content: center;
-  flex: 1;
 }
 
 /* ===== SEARCH ===== */
