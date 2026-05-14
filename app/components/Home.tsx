@@ -40,9 +40,9 @@ const Home = () => {
   const [query, setQuery] = useState<string>("");
   const [location, setLocation] = useState<string>("Berlin, Germany");
   const [date, setDate] = useState<string>("");
-  const [nowHour, setNowHour] = useState<number>(new Date().getHours());
+  const [nowHour, setNowHour] = useState<number>(new Date().getUTCHours());
   const [cities, setCities] = useState<City[]>([]);
-  const [forecast, setForecast] = useState<ForecastResponse>({});
+  const [forecast, setForecast] = useState<ForecastResponse>({ tzoffset: 0 });
   const [loading, setLoading] = useState<boolean>(false); //
   const [loadingForecast, setLoadingForecast] = useState<boolean>(false); //
   const [apiError, setApiError] = useState<boolean>(false);
@@ -229,27 +229,29 @@ const Home = () => {
       return defaultToday;
     }
     const current = { ...forecast.days[0] };
+    const tzoffset = +forecast.tzoffset; // in seconds
     Object.keys(current).forEach((key) => {
       if (current[key as keyof typeof current] == null) {
         (current as Record<string, any>)[key] = "";
       }
     });
-    let { temp, feelslike, windspeed, humidity, precip, conditions, hours } =
-      current;
-
+    let { windspeed, humidity, precip, conditions, hours } = current;
+    let temp = hours[nowHour + tzoffset].temp;
+    let feelslike = hours[nowHour + tzoffset].feelslike;
+    console.log(nowHour + tzoffset);
     return {
       temp:
-        hours === null
+        temp === null
           ? "-"
           : system === "metric"
-            ? +toCelsius(Number(hours[nowHour].temp))
-            : +Number(hours[nowHour].temp).toFixed(0),
+            ? +toCelsius(Number(temp))
+            : +Number(temp).toFixed(0),
       feelslike:
-        feelslike === null || feelslike === ""
+        feelslike === null
           ? "-"
           : system === "metric"
-            ? +toCelsius(Number(hours[nowHour].feelslike))
-            : +Number(hours[nowHour].feelslike).toFixed(0),
+            ? +toCelsius(Number(feelslike))
+            : +Number(feelslike).toFixed(0),
       wind:
         windspeed === null || windspeed === ""
           ? "-"

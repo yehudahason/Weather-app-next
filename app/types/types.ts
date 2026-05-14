@@ -70,4 +70,5 @@ export type ForecastDayWithHours = ForecastDay & {
 export type ForecastResponse = {
   currentConditions?: CurrentConditions;
   days?: ForecastDayWithHours[];
+  tzoffset: number | string;
 };
