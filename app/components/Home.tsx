@@ -182,6 +182,7 @@ const Home = () => {
     } catch (error) {
       console.error("Failed to fetch weather data:", error);
       setLoadingForecast(false);
+      setApiError(true);
     }
   };
   const weekD = useMemo(() => {
