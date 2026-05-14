@@ -236,9 +236,9 @@ const Home = () => {
       }
     });
     let { windspeed, humidity, precip, conditions, hours } = current;
-    let temp = hours[nowHour + tzoffset].temp;
-    let feelslike = hours[nowHour + tzoffset].feelslike;
-    console.log(nowHour + tzoffset);
+    let temp = hours[(nowHour + tzoffset) % 24].temp;
+    let feelslike = hours[(nowHour + tzoffset) % 24].feelslike;
+
     return {
       temp:
         temp === null
