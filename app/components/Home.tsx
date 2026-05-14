@@ -172,9 +172,12 @@ const Home = () => {
           "en-US",
           { weekday: "long" },
         );
+        setNowHour(new Date().getUTCHours());
+        const tzoffset = +data.tzoffset;
+        let localHour = (new Date().getUTCHours() + tzoffset) % 24;
         setFirstDay(dayName);
         setSelectedDay(dayName);
-        setDate(getDate(data.days[0].datetime));
+        setDate(`${getDate(data.days[0].datetime)}  ${localHour}:00`);
       }
 
       setForecast(data);
