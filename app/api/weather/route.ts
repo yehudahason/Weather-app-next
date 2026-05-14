@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
   try {
     const res = await fetch(
-      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}?unitGroup=metric&key=${apiKey}&contentType=json`,
+      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}?key=${apiKey}&contentType=json`,
       { next: { revalidate: 3600 } }, // Optional: Cache for 1 hour
     );
 
