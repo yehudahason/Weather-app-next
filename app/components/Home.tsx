@@ -40,6 +40,7 @@ const Home = () => {
   const [query, setQuery] = useState<string>("");
   const [location, setLocation] = useState<string>("Berlin, Germany");
   const [date, setDate] = useState<string>("");
+  const [nowHour, setNowHour] = useState<number>(new Date().getHours());
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({});
   const [loading, setLoading] = useState<boolean>(false); //
@@ -232,21 +233,22 @@ const Home = () => {
         (current as Record<string, any>)[key] = "";
       }
     });
-    let { temp, feelslike, windspeed, humidity, precip, conditions } = current;
+    let { temp, feelslike, windspeed, humidity, precip, conditions, hours } =
+      current;
 
     return {
       temp:
-        temp === null || temp === ""
+        hours === null
           ? "-"
           : system === "metric"
-            ? +toCelsius(Number(temp))
-            : +Number(temp).toFixed(0),
+            ? +toCelsius(Number(hours[nowHour].temp))
+            : +Number(hours[nowHour].temp).toFixed(0),
       feelslike:
         feelslike === null || feelslike === ""
           ? "-"
           : system === "metric"
-            ? +toCelsius(Number(feelslike))
-            : +Number(feelslike).toFixed(0),
+            ? +toCelsius(Number(hours[nowHour].feelslike))
+            : +Number(hours[nowHour].feelslike).toFixed(0),
       wind:
         windspeed === null || windspeed === ""
           ? "-"

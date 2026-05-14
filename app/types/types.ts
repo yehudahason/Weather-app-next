@@ -49,6 +49,7 @@ export const week = [
 export type ForecastHour = {
   temp: number;
   conditions: string;
+  feelslike: number;
 };
 
 export type CurrentConditions = {
