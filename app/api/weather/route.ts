@@ -14,5 +14,5 @@ export async function GET(req: Request) {
   if (res.ok) {
     const data = await res.json();
     return NextResponse.json(data);
-  } else return NextResponse.json({});
+  } else throw new Error("Failed to fetch weather data");
 }
