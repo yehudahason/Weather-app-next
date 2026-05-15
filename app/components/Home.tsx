@@ -249,7 +249,9 @@ const Home = () => {
     if (localhour < 0) {
       localhour += 24;
     }
-    console.log(localhour, tzoffset, nowHour);
+    console.log(
+      `localhour: ${localhour}, tzoffset: ${tzoffset}, nowHour: ${nowHour}`,
+    );
     let temp = hours[localhour % 24].temp;
     let feelslike = hours[localhour % 24].feelslike;
 
