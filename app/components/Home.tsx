@@ -40,7 +40,6 @@ const Home = () => {
   const [query, setQuery] = useState<string>("");
   const [location, setLocation] = useState<string>("Berlin, Germany");
   const [date, setDate] = useState<string>("");
-  const [nowHour, setNowHour] = useState<number>(new Date().getUTCHours());
   const [cities, setCities] = useState<City[]>([]);
   const [forecast, setForecast] = useState<ForecastResponse>({ tzoffset: 0 });
   const [loading, setLoading] = useState<boolean>(false); //
@@ -55,6 +54,18 @@ const Home = () => {
     () => getLiteralDays(week.indexOf(firstDay)),
     [firstDay],
   );
+
+  function calcNowHour(tzoffset: number): number {
+    const utcHour = new Date().getUTCHours();
+    let localHour = utcHour + tzoffset;
+    if (localHour < 0) {
+      localHour += 24;
+    }
+    localHour %= 24;
+    console.log(`localHour:${localHour} tzoffset:${tzoffset}
+      utcHour:${utcHour}`);
+    return localHour;
+  }
   const handleSearch = async (value: string) => {
     setQuery(value);
 
@@ -172,13 +183,7 @@ const Home = () => {
           "en-US",
           { weekday: "long" },
         );
-        setNowHour(new Date().getUTCHours());
-        let tzoffset = +data.tzoffset;
-        let localHour = new Date().getUTCHours() + tzoffset;
-        if (localHour < 0) {
-          localHour = 24 + tzoffset;
-        }
-        localHour = localHour % 24;
+        let localHour = calcNowHour(+data.tzoffset);
 
         setFirstDay(dayName);
         setSelectedDay(dayName);
@@ -244,16 +249,10 @@ const Home = () => {
     });
     let { windspeed, humidity, precip, conditions, hours } = current;
 
-    const tzoffset = +forecast.tzoffset;
-    let localhour = nowHour + tzoffset;
-    if (localhour < 0) {
-      localhour += 24;
-    }
-    console.log(
-      `localhour: ${localhour}, tzoffset: ${tzoffset}, nowHour: ${nowHour}`,
-    );
-    let temp = hours[localhour % 24].temp;
-    let feelslike = hours[localhour % 24].feelslike;
+    let localhour = calcNowHour(+forecast.tzoffset);
+
+    let temp = hours[localhour].temp;
+    let feelslike = hours[localhour].feelslike;
 
     return {
       temp:
