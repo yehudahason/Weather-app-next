@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./Units";
 import { searchCities } from "../utils/getWeather";
+import { calcNowHour } from "../utils/getNowHour";
 import {
   weekForecast,
   hoursForecast,
@@ -55,17 +56,6 @@ const Home = () => {
     [firstDay],
   );
 
-  function calcNowHour(tzoffset: number): number {
-    const utcHour = new Date().getUTCHours();
-    let localHour = utcHour + tzoffset;
-    if (localHour < 0) {
-      localHour += 24;
-    }
-    localHour %= 24;
-    console.log(`localHour:${localHour} tzoffset:${tzoffset}
-      utcHour:${utcHour}`);
-    return localHour;
-  }
   const handleSearch = async (value: string) => {
     setQuery(value);
 
