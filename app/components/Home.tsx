@@ -173,7 +173,10 @@ const Home = () => {
           { weekday: "long" },
         );
         setNowHour(new Date().getUTCHours());
-        const tzoffset = +data.tzoffset;
+        let tzoffset = +data.tzoffset;
+        if (tzoffset < 0) {
+          tzoffset = 24 + tzoffset;
+        }
         let localHour = (new Date().getUTCHours() + tzoffset) % 24;
         setFirstDay(dayName);
         setSelectedDay(dayName);
@@ -232,15 +235,21 @@ const Home = () => {
       return defaultToday;
     }
     const current = { ...forecast.days[0] };
-    const tzoffset = +forecast.tzoffset; // in seconds
     Object.keys(current).forEach((key) => {
       if (current[key as keyof typeof current] == null) {
         (current as Record<string, any>)[key] = "";
       }
     });
     let { windspeed, humidity, precip, conditions, hours } = current;
-    let temp = hours[(nowHour + tzoffset) % 24].temp;
-    let feelslike = hours[(nowHour + tzoffset) % 24].feelslike;
+
+    const tzoffset = +forecast.tzoffset;
+    let calc = nowHour + tzoffset;
+    if (calc < 0) {
+      calc = 24 + calc;
+    }
+
+    let temp = hours[calc % 24].temp;
+    let feelslike = hours[calc % 24].feelslike;
 
     return {
       temp:
