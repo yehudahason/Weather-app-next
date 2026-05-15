@@ -174,10 +174,12 @@ const Home = () => {
         );
         setNowHour(new Date().getUTCHours());
         let tzoffset = +data.tzoffset;
-        if (tzoffset < 0) {
-          tzoffset = 24 + tzoffset;
+        let localHour = new Date().getUTCHours() + tzoffset;
+        if (localHour < 0) {
+          localHour = 24 + tzoffset;
         }
-        let localHour = (new Date().getUTCHours() + tzoffset) % 24;
+        localHour = localHour % 24;
+
         setFirstDay(dayName);
         setSelectedDay(dayName);
         setDate(`${getDate(data.days[0].datetime)}  ${localHour}:00`);
@@ -243,13 +245,13 @@ const Home = () => {
     let { windspeed, humidity, precip, conditions, hours } = current;
 
     const tzoffset = +forecast.tzoffset;
-    let calc = nowHour + tzoffset;
-    if (calc < 0) {
-      calc = 24 + calc;
+    let localhour = nowHour + tzoffset;
+    if (localhour < 0) {
+      localhour += 24;
     }
-
-    let temp = hours[calc % 24].temp;
-    let feelslike = hours[calc % 24].feelslike;
+    console.log(localhour, tzoffset, nowHour);
+    let temp = hours[localhour % 24].temp;
+    let feelslike = hours[localhour % 24].feelslike;
 
     return {
       temp:
