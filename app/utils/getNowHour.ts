@@ -1,9 +1,7 @@
-export function calcNowHour(tzoffset: number, test?: number): number {
-  let utcHour;
-  if (!test) {
-    utcHour = new Date().getUTCHours();
-  } else {
-    utcHour = test; //fixed value for testing
+export function calcNowHour(tzoffset: number, fixedUTC?: number): number {
+  let utcHour = new Date().getUTCHours();
+  if (fixedUTC !== undefined) {
+    utcHour = fixedUTC; //fixed value for testing
   }
   let localHour = utcHour + tzoffset;
   localHour %= 24;
