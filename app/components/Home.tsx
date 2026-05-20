@@ -333,7 +333,6 @@ const Home = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     searchCities("Berlin");
-    fetchWeatherData("Berlin");
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
