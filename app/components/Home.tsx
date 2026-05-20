@@ -333,6 +333,7 @@ const Home = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     searchCities("Berlin");
+    fetchWeatherData("Berlin");
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -519,7 +520,7 @@ const Home = () => {
                           <h1 className="temperature">
                             <img
                               src={`/assets/images/icon-${today.icon}.webp`}
-                              alt="icon"
+                              alt={`${today.icon}`}
                               style={{ height: "100px" }}
                             />{" "}
                             {today.temp}°
@@ -559,7 +560,7 @@ const Home = () => {
                           <p className="weather-icon">
                             <img
                               src={`/assets/images/icon-${icon}.webp`}
-                              alt="icon"
+                              alt={`${icon}`}
                               style={{ height: "60px" }}
                             />
                           </p>
@@ -588,7 +589,7 @@ const Home = () => {
                               >
                                 <img
                                   src="/assets/images/icon-dropdown.svg"
-                                  alt=""
+                                  alt="dropdown"
                                 />
                               </span>
                             </button>
@@ -621,7 +622,7 @@ const Home = () => {
                           <div className="left">
                             <img
                               src={`/assets/images/icon-${icon}.webp`}
-                              alt="icon"
+                              alt={`${icon}`}
                             />
                             <span>{time}</span>
                           </div>
