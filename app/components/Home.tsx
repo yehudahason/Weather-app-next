@@ -520,7 +520,6 @@ const Home = () => {
                             <img
                               src={`/assets/images/icon-${today.icon}.webp`}
                               alt={`${today.icon}`}
-                              style={{ height: "100px" }}
                             />{" "}
                             {today.temp}°
                           </h1>
