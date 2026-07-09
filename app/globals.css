@@ -49,6 +49,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
+  flex: 1;
 }
 
 /* ===== HEADER ===== */
