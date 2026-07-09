@@ -90,12 +90,9 @@ export function getDate(date: string): string {
     day: "numeric",
     year: "numeric",
   }).format(fdate);
-
+  return formatted;
   // console.log(formatted);
   // Output: Tuesday, Aug 5, 2025
-
-  // console.log(formatted);
-  return formatted;
 }
 export const toCelsius = (f: number) => {
   return Math.round(((f - 32) * 5) / 9);
