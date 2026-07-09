@@ -91,10 +91,10 @@ export function getDate(date: string): string {
     year: "numeric",
   }).format(fdate);
 
-  console.log(formatted);
+  // console.log(formatted);
   // Output: Tuesday, Aug 5, 2025
 
-  console.log(formatted);
+  // console.log(formatted);
   return formatted;
 }
 export const toCelsius = (f: number) => {

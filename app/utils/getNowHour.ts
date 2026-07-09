@@ -8,7 +8,7 @@ export function calcNowHour(tzoffset: number, fixedUTC?: number): number {
   if (localHour < 0) {
     localHour += 24;
   }
-  console.log(`localHour:${localHour} tzoffset:${tzoffset}
-      utcHour:${utcHour}`);
+  // console.log(`localHour:${localHour} tzoffset:${tzoffset}
+  //     utcHour:${utcHour}`);
   return localHour;
 }

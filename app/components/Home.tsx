@@ -119,7 +119,7 @@ const Home = () => {
 
       if (resolvedLon == null || resolvedLat == null) {
         const resCity = await searchCities(city);
-        console.log(resCity);
+        // console.log(resCity);
         if (
           !resCity ||
           resCity.length === 0 ||
@@ -165,7 +165,7 @@ const Home = () => {
         return;
       }
       const data: ForecastResponse = await res.json();
-      console.log(data);
+      // console.log(data);
       if (requestId !== weatherRequestRef.current) return;
       setLoadingForecast(false);
       if (data.days?.length) {
