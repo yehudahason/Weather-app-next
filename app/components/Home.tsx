@@ -170,19 +170,7 @@ const Home = () => {
       const { localHour, dayOffset } = calcTodayOrBefore(+data.tzoffset);
       setLoadingForecast(false);
       if (data.days?.length) {
-        switch (dayOffset) {
-          case 0:
-            data.days = data.days.slice(1);
-            break;
-
-          case 1:
-            data.days = data.days.slice(2);
-            break;
-
-          default:
-            // dayOffset === -1 (or any other value)
-            break;
-        }
+        data.days = data.days.slice(dayOffset + 1);
 
         const dayName = new Date(data.days[0].datetime).toLocaleDateString(
           "en-US",
