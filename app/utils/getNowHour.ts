@@ -1,33 +1,28 @@
-export function calcNowHour(tzoffset: number, fixedUTC?: number): number {
-  let utcHour = new Date().getUTCHours();
-  if (fixedUTC !== undefined) {
-    utcHour = fixedUTC; //fixed value for testing
-  }
-  let localHour = utcHour + tzoffset;
-  localHour %= 24;
-  if (localHour < 0) {
-    localHour += 24;
-  }
-  console.log(`localHour:${localHour} tzoffset:${tzoffset}
-      utcHour:${utcHour}`);
-  return localHour;
-}
-export function calcTodayOrBefore(tzOffset: number, fixedUTC?: number) {
-  const utcHour = fixedUTC ?? new Date().getUTCHours();
+export function calcTodayOrBefore(
+  tzOffset: number,
+  fixedUTC?: { hours: number; minutes: number },
+) {
+  const now = new Date();
 
-  const rawHour = utcHour + tzOffset;
+  const utcHours = fixedUTC?.hours ?? now.getUTCHours();
+  const utcMinutes = fixedUTC?.minutes ?? now.getUTCMinutes();
+
+  const totalUtcMinutes = utcHours * 60 + utcMinutes;
+  const totalLocalMinutes = totalUtcMinutes + tzOffset * 60;
 
   let dayOffset = 0;
-  if (rawHour < 0) {
-    dayOffset = -1; // previous day
-  } else if (rawHour >= 24) {
-    dayOffset = 1; // next day
+
+  if (totalLocalMinutes < 0) {
+    dayOffset = -1;
+  } else if (totalLocalMinutes >= 24 * 60) {
+    dayOffset = 1;
   }
 
-  const localHour = ((rawHour % 24) + 24) % 24;
+  const wrapped = ((totalLocalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
 
   return {
-    localHour,
-    dayOffset, // -1 = yesterday, 0 = today, 1 = tomorrow
+    localHour: Math.floor(wrapped / 60),
+    localMinute: wrapped % 60,
+    dayOffset,
   };
 }

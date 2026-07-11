@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./Units";
 import { searchCities } from "../utils/getWeather";
-import { calcNowHour, calcTodayOrBefore } from "../utils/getNowHour";
+import { calcTodayOrBefore } from "../utils/getNowHour";
 import {
   weekForecast,
   hoursForecast,
@@ -13,7 +13,6 @@ import {
   toMm,
   getDate,
   normalize,
-  toEnglish,
 } from "../utils/utilsFunc";
 import { getIcon } from "../utils/weatherIcons";
 import { getCountryName } from "../utils/getWeather";
@@ -239,12 +238,12 @@ const Home = () => {
         (current as Record<string, any>)[key] = "";
       }
     });
-    let { windspeed, humidity, precip, conditions, hours } = current;
+    const { windspeed, humidity, precip, conditions, hours } = current;
 
-    let localhour = calcNowHour(+forecast.tzoffset);
+    const { localHour } = calcTodayOrBefore(+forecast.tzoffset);
 
-    let temp = hours[localhour].temp;
-    let feelslike = hours[localhour].feelslike;
+    const temp = hours[localHour].temp;
+    const feelslike = hours[localHour].feelslike;
 
     return {
       temp:

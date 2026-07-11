@@ -1,42 +1,42 @@
 import { calcTodayOrBefore } from "../app/utils/getNowHour";
 import "@testing-library/jest-dom";
 
-// test("test negative hour", () => {
-//   expect(calcNowHour(-8, 5)).toBe(21);
-// });
-
-// test("test greater than 24  hour", () => {
-//   expect(calcNowHour(20, 5)).toBe(1);
-// });
-
-// test("test zero hour", () => {
-//   expect(calcNowHour(-5, 5)).toBe(0);
-// });
-
 test("negative time", () => {
-  expect(calcTodayOrBefore(-8, 5)).toEqual({
+  expect(calcTodayOrBefore(-8, { hours: 5, minutes: 0 })).toEqual({
     localHour: 21,
     dayOffset: -1,
+    localMinute: 0,
   });
 });
 
 test("greater than 24 hour", () => {
-  expect(calcTodayOrBefore(20, 5)).toEqual({
+  expect(calcTodayOrBefore(20, { hours: 5, minutes: 0 })).toEqual({
     localHour: 1,
     dayOffset: 1,
+    localMinute: 0,
   });
 });
 
 test("zero hour", () => {
-  expect(calcTodayOrBefore(-5, 5)).toEqual({
+  expect(calcTodayOrBefore(-5, { hours: 5, minutes: 0 })).toEqual({
     localHour: 0,
     dayOffset: 0,
+    localMinute: 0,
+  });
+});
+
+test("half hour test", () => {
+  expect(calcTodayOrBefore(-5, { hours: 5, minutes: 30 })).toEqual({
+    localHour: 0,
+    dayOffset: 0,
+    localMinute: 30,
   });
 });
 
 test("normal hour", () => {
-  expect(calcTodayOrBefore(5, 5)).toEqual({
+  expect(calcTodayOrBefore(5, { hours: 5, minutes: 0 })).toEqual({
     localHour: 10,
     dayOffset: 0,
+    localMinute: 0,
   });
 });
