@@ -165,7 +165,7 @@ const Home = () => {
         return;
       }
       const data: ForecastResponse = await res.json();
-      // console.log(data);
+      console.log(data);
       if (requestId !== weatherRequestRef.current) return;
       setLoadingForecast(false);
       if (data.days?.length) {

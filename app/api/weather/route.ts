@@ -15,11 +15,19 @@ export async function GET(req: Request) {
   }
 
   const apiKey = process.env.API_KEY;
+  const today = new Date();
+  const start = today.toISOString().split("T")[0];
+
+  const end = new Date(today);
+  end.setDate(end.getDate() + 7); // today + next 6 days = 7 days total
+  const endDate = end.toISOString().split("T")[0];
 
   try {
     const res = await fetch(
-      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}?key=${apiKey}&contentType=json`,
-      { next: { revalidate: 3600 } }, // Optional: Cache for 1 hour
+      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}/${start}/${endDate}?key=${apiKey}&contentType=json`,
+      {
+        next: { revalidate: 3600 },
+      },
     );
 
     if (!res.ok) {
