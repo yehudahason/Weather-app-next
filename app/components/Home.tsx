@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Units from "./Units";
 import { searchCities } from "../utils/getWeather";
-import { calcNowHour } from "../utils/getNowHour";
+import { calcNowHour, calcTodayOrBefore } from "../utils/getNowHour";
 import {
   weekForecast,
   hoursForecast,
@@ -167,13 +167,27 @@ const Home = () => {
       const data: ForecastResponse = await res.json();
       console.log(data);
       if (requestId !== weatherRequestRef.current) return;
+      const { localHour, dayOffset } = calcTodayOrBefore(+data.tzoffset);
       setLoadingForecast(false);
       if (data.days?.length) {
+        switch (dayOffset) {
+          case 0:
+            data.days = data.days.slice(1);
+            break;
+
+          case 1:
+            data.days = data.days.slice(2);
+            break;
+
+          default:
+            // dayOffset === -1 (or any other value)
+            break;
+        }
+
         const dayName = new Date(data.days[0].datetime).toLocaleDateString(
           "en-US",
           { weekday: "long" },
         );
-        let localHour = calcNowHour(+data.tzoffset);
 
         setFirstDay(dayName);
         setSelectedDay(dayName);

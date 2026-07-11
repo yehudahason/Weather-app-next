@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { calcTodayOrBefore } from "@/app/utils/getNowHour";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -16,10 +17,11 @@ export async function GET(req: Request) {
 
   const apiKey = process.env.API_KEY;
   const today = new Date();
+  today.setDate(today.getDate() - 1);
   const start = today.toISOString().split("T")[0];
 
   const end = new Date(today);
-  end.setDate(end.getDate() + 7); // today + next 6 days = 7 days total
+  end.setDate(end.getDate() + 9); // today + next 6 days = 7 days total
   const endDate = end.toISOString().split("T")[0];
 
   try {
